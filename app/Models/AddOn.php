@@ -1,0 +1,28 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+
+use App\Enums\AddOnEnum;
+
+class AddOn extends Model
+{
+    protected $fillable = [
+        'booking_id',
+        'add_on',
+        'created_at',
+        'updated_at',
+    ];
+
+    protected $casts = [
+        'add_on' => AddOnEnum::class,
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+    ];
+
+    public function booking()
+    {
+        return $this->belongsTo(Booking::class);
+    }
+}
