@@ -9,6 +9,7 @@
         "bensampo/laravel-enum": "^6.12",
         "laravel/framework": "^11.0",
         "laravel/tinker": "^2.9",
+        "league/fractal": "^0.20.2",
         "prettus/l5-repository": "^3.0"
     },
     "require-dev": {
