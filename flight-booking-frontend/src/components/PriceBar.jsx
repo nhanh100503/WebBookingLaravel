@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { validateCoupon } from '../services/bookingService';
 
 const PriceBar = ({ bookingData, onCouponApply }) => {
@@ -8,6 +8,7 @@ const PriceBar = ({ bookingData, onCouponApply }) => {
   const [subtotal, setSubtotal] = useState(0);
   const [vat, setVat] = useState(0);
   const [total, setTotal] = useState(0);
+  const isCalculatingRef = useRef(false);
 
   // Package prices
   const packagePrices = {
@@ -32,10 +33,9 @@ const PriceBar = ({ bookingData, onCouponApply }) => {
   };
 
   useEffect(() => {
-    calculatePrices();
-  }, [bookingData, appliedCoupon]);
+    if (isCalculatingRef.current) return;
+    isCalculatingRef.current = true;
 
-  const calculatePrices = () => {
     let calculatedSubtotal = 0;
 
     // Immigration package price
@@ -84,16 +84,33 @@ const PriceBar = ({ bookingData, onCouponApply }) => {
     setVat(calculatedVat);
     setTotal(calculatedTotal);
 
-    // Update parent component
+    // Update parent component only if callback exists and values changed
     if (onCouponApply) {
-      onCouponApply({
+      const priceData = {
         sub_price: calculatedSubtotal,
         vat_price: calculatedVat,
         total_price: calculatedTotal,
         coupon_id: appliedCoupon?.id || null,
+      };
+      // Use requestAnimationFrame to avoid infinite loop
+      requestAnimationFrame(() => {
+        onCouponApply(priceData);
+        isCalculatingRef.current = false;
       });
+    } else {
+      isCalculatingRef.current = false;
     }
-  };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    bookingData?.immigration?.immigration_package,
+    bookingData?.immigration?.pickup_vehicle_using,
+    bookingData?.immigration?.pickup_at_airplain_exit,
+    bookingData?.immigration?.complete_within_15min,
+    bookingData?.emigration?.emigration_package,
+    appliedCoupon?.id,
+    appliedCoupon?.type,
+    appliedCoupon?.discount,
+  ]);
 
   const handleCouponApply = async () => {
     if (!couponCode.trim()) {

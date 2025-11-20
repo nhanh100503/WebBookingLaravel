@@ -1,7 +1,16 @@
 import axios from 'axios';
 
 // Configure axios base URL - adjust this to match your Laravel backend
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
+// Laravel api.php routes are automatically prefixed with /api
+// Default to localhost:8000 to match Laravel's default serve command
+let API_BASE_URL = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
+
+// Ensure baseURL ends with /api (Laravel's api.php routes are prefixed with /api)
+if (!API_BASE_URL.endsWith('/api')) {
+  API_BASE_URL = API_BASE_URL.endsWith('/')
+    ? `${API_BASE_URL}api`
+    : `${API_BASE_URL}/api`;
+}
 
 const api = axios.create({
   baseURL: API_BASE_URL,

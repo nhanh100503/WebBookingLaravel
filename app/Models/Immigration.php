@@ -15,12 +15,20 @@ class Immigration extends Model
         'flight_num',
         'airport',
         'arrival_date',
+        'pickup_at_airplain_exit',
+        'complete_within_15min',
+        'pickup_vehicle_using',
+        'phone_num_of_picker',
+        'requirement',
         'created_at',
         'updated_at',
     ];
 
     protected $casts = [
         'immigration_package' => ImmigrationPackageEnum::class,
+        'arrival_date' => 'date',
+        'pickup_at_airplain_exit' => 'boolean',
+        'complete_within_15min' => 'boolean',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];

@@ -31,4 +31,21 @@ class BookingController extends BaseApiController
             );
         }
     }
+
+    public function show(int $id): JsonResponse
+    {
+        try {
+            $booking = $this->bookingService->getRepository()->find($id);
+            if (!$booking) {
+                return $this->respondWithError('Booking not found', [], 404);
+            }
+            return $this->respondWithItem($booking->load(['addOns', 'coupon', 'passport', 'immigration', 'emigration']), new BookingTransformer());
+        } catch (\Exception $e) {
+            return $this->respondWithError(
+                'Failed to retrieve booking',
+                ['error' => $e->getMessage()],
+                500
+            );
+        }
+    }
 }
