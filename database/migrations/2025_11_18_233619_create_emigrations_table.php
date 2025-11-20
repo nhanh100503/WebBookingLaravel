@@ -15,15 +15,16 @@ return new class extends Migration
         Schema::create('emigration', function (Blueprint $table) {
             $table->id();
 
+            $table->enum('emigration_package', EmigrationPackageEnum::getValues());
             $table->string('flight_reservation_num', 50);
-            $table->string('airline_membership_num', 50)->nullable();
+            $table->string('flight_num', 50);
             $table->string('airport', 100);
+            $table->string('airline_membership_num', 50)->nullable();
             $table->string('seating_pref', 50)->nullable();
-            
+            $table->date('departure_date');
+            $table->time('meeting_time')->nullable();
             $table->string('phone_num_of_picker', 20)->nullable();
             $table->text('requirement')->nullable();
-            
-            $table->enum('emigration_package', EmigrationPackageEnum::getValues());
 
             $table->foreignId('booking_id')->constrained('bookings')->cascadeOnDelete();
 
@@ -36,6 +37,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('emigrations');
+        Schema::dropIfExists('emigration');
     }
 };
