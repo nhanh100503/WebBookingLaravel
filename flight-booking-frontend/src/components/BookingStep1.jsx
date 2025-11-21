@@ -13,7 +13,7 @@ const BookingStep1 = ({ bookingData, setBookingData }) => {
     immigration_package: bookingData?.immigration?.immigration_package || '35$', // Default to first option
     flight_reservation_num: bookingData?.immigration?.flight_reservation_num || '',
     flight_num: bookingData?.immigration?.flight_num || '',
-    airport: bookingData?.immigration?.airport || 'SGN',
+    airport: bookingData?.immigration?.airport,
     arrival_date: bookingData?.immigration?.arrival_date || '',
     pickup_at_airplain_exit: bookingData?.immigration?.pickup_at_airplain_exit || false,
     complete_within_15min: bookingData?.immigration?.complete_within_15min || false,
@@ -26,13 +26,14 @@ const BookingStep1 = ({ bookingData, setBookingData }) => {
     emigration_package: bookingData?.emigration?.emigration_package || '50$', // Default to first option
     emigration_flight_reservation_num: bookingData?.emigration?.flight_reservation_num || '',
     airline_membership_num: bookingData?.emigration?.airline_membership_num || '',
-    emigration_airport: bookingData?.emigration?.airport || 'SGN',
+    emigration_airport: bookingData?.emigration?.airport,
     seating_pref: bookingData?.emigration?.seating_pref || '',
     emigration_phone_num_of_picker: bookingData?.emigration?.phone_num_of_picker || '',
     emigration_requirement: bookingData?.emigration?.requirement || '',
     departure_date: bookingData?.emigration?.departure_date || '',
     meeting_time: bookingData?.emigration?.meeting_time || '',
     emigration_flight_num: bookingData?.emigration?.flight_num || '',
+    sameAsEntry: false, // Track if "Same as entry" checkbox is checked
   });
 
   const airports = [
@@ -133,10 +134,42 @@ const BookingStep1 = ({ bookingData, setBookingData }) => {
       return;
     }
 
-    setFormData(prev => ({
-      ...prev,
-      [name]: type === 'checkbox' ? checked : value,
-    }));
+    setFormData(prev => {
+      const updated = {
+        ...prev,
+        [name]: type === 'checkbox' ? checked : value,
+      };
+
+      // If "Same as entry" is checked and immigration flight_reservation_num changes, update emigration
+      if (name === 'flight_reservation_num' && prev.sameAsEntry && prev.useImmigration) {
+        updated.emigration_flight_reservation_num = updated.flight_reservation_num;
+      }
+
+      // If user manually edits emigration flight reservation, uncheck "Same as entry"
+      if (name === 'emigration_flight_reservation_num' && prev.sameAsEntry) {
+        updated.sameAsEntry = false;
+      }
+
+      return updated;
+    });
+  };
+
+  // Handle "Same as entry" checkbox for emigration flight reservation
+  const handleSameAsEntry = (checked) => {
+    if (checked && formData.useImmigration && formData.flight_reservation_num) {
+      // When checked: copy immigration flight reservation to emigration
+      setFormData(prev => ({
+        ...prev,
+        emigration_flight_reservation_num: prev.flight_reservation_num,
+        sameAsEntry: true,
+      }));
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        emigration_flight_reservation_num: '',
+        sameAsEntry: false,
+      }));
+    }
   };
 
   const handlePriceUpdate = (priceData) => {
@@ -147,10 +180,8 @@ const BookingStep1 = ({ bookingData, setBookingData }) => {
   };
 
   const handleNext = () => {
-    // Validate form
     if (!validateForm()) {
       setShowError(true);
-      // Scroll to top to show error
       window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }
@@ -173,11 +204,14 @@ const BookingStep1 = ({ bookingData, setBookingData }) => {
       emigration: formData.useEmigration ? {
         emigration_package: formData.emigration_package,
         flight_reservation_num: formData.emigration_flight_reservation_num,
+        flight_num: formData.emigration_flight_num,
         airline_membership_num: formData.airline_membership_num,
         airport: formData.emigration_airport,
         seating_pref: formData.seating_pref,
         phone_num_of_picker: formData.emigration_phone_num_of_picker,
         requirement: formData.emigration_requirement,
+        departure_date: formData.departure_date,
+        meeting_time: formData.meeting_time,
       } : null,
       type: formData.useImmigration && formData.useEmigration ? 'both' :
         formData.useImmigration ? 'immigration' : 'emigration',
@@ -247,14 +281,10 @@ const BookingStep1 = ({ bookingData, setBookingData }) => {
 
   return (
     <div className="min-h-screen bg-white">
-      <div className="max-w-6xl mx-auto px-4 py-8 pb-32">
-
-
+      <div className="max-w-full mx-auto px-4 py-8 pb-32">
         <ProcessIndicator currentStep={1} />
-
         {/* Error Message */}
         <Error message={showError ? "There Is A Problem With Your Answer. Please Check The Fields Below." : null} />
-
         {/* Information Box */}
         <div className="mb-6 p-4 bg-gray-50 border border-gray-200 rounded-lg">
           <div className="flex flex-wrap items-center gap-4 text-sm text-gray-700">
@@ -270,11 +300,9 @@ const BookingStep1 = ({ bookingData, setBookingData }) => {
             <span className="text-gray-700">📱 Easy booking via LINE chat here&gt;&gt;</span>
           </div>
         </div>
-
         {/* Your desired service */}
         <div className="mb-6">
           <h2 className="text-xl font-bold text-black mb-4 text-start">Your desired service</h2>
-
           {/* Immigration Checkbox */}
           <div className="mb-4">
             <label className="flex items-center cursor-pointer">
@@ -288,29 +316,90 @@ const BookingStep1 = ({ bookingData, setBookingData }) => {
               <span className="text-black">Use of the immigration fast track (from $35)</span>
             </label>
           </div>
-
           {/* Immigration Form - Show when checked */}
           {formData.useImmigration && (
-            <div className="ml-8 mb-6 p-6 bg-gray-50 border border-gray-200 rounded-lg">
-              <div className="mb-6">
-                <FieldRequired label="Entry Fast Track Package" required={true} error={errors.immigration_package} isEmpty={!formData.immigration_package}>
-                  <div className="space-y-2">
-                    {immigrationPackages.map(pkg => (
-                      <div key={pkg.value} className="flex items-start">
-                        <input
-                          type="radio"
-                          name="immigration_package"
-                          value={pkg.value}
-                          checked={formData.immigration_package === pkg.value}
-                          onChange={handleInputChange}
-                          required={formData.useImmigration}
-                          className="mt-1 w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
-                        />
-                        <label className="ml-3 text-sm text-black">{pkg.label}</label>
+            //make the div bigger 
+            <div className=" mb-6 p-5 bg-gray-50 border border-gray-200 rounded-lg w-full">
+              {/* Immigration Package and Complete within 15 minutes group using cols-2*/}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="mb-6">
+                  <FieldRequired label="Entry Fast Track Package" required={true} error={errors.immigration_package} isEmpty={!formData.immigration_package}>
+                    <div className="space-y-2 w-[98%]">
+                      {immigrationPackages.map(pkg => (
+                        <label key={pkg.value} className="flex items-start cursor-pointer text-start">
+                          <input
+                            type="radio"
+
+                            name="immigration_package"
+                            value={pkg.value}
+                            checked={formData.immigration_package === pkg.value}
+                            onChange={handleInputChange}
+                            required={formData.useImmigration}
+                            className="mt-1 w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500 cursor-pointer"
+                          />
+                          <label className="ml-3 text-sm text-black">{pkg.label}</label>
+                        </label>
+                      ))}
+                    </div>
+                  </FieldRequired>
+                </div>
+                {/* Only show "Complete within 15 min" option for first 3 packages (not 300$) */}
+                {formData.immigration_package !== '300$' && (
+                  <div className="mt-6">
+                    <FieldRequired
+                      label="Option: Complete immigration procedures in under 15 minutes"
+                      required={true}
+                      error={errors.complete_within_15min}
+                      isEmpty={formData.complete_within_15min === undefined}
+                    >
+                      <div className="space-y-2">
+                        <div className="flex items-center">
+                          <input
+                            type="radio"
+                            name="complete_within_15min"
+                            value="false"
+                            checked={!formData.complete_within_15min}
+                            onChange={() => {
+                              if (errors.complete_within_15min) {
+                                setErrors(prev => {
+                                  const newErrors = { ...prev };
+                                  delete newErrors.complete_within_15min;
+                                  return newErrors;
+                                });
+                              }
+                              setFormData(prev => ({ ...prev, complete_within_15min: false }));
+                            }}
+                            className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                          />
+                          <label className="ml-3 text-sm text-black">Do not use</label>
+                        </div>
+                        <div className="flex items-center">
+                          <input
+                            type="radio"
+                            name="complete_within_15min"
+                            value="true"
+                            checked={formData.complete_within_15min}
+                            onChange={() => {
+                              if (errors.complete_within_15min) {
+                                setErrors(prev => {
+                                  const newErrors = { ...prev };
+                                  delete newErrors.complete_within_15min;
+                                  return newErrors;
+                                });
+                              }
+                              setFormData(prev => ({ ...prev, complete_within_15min: true }));
+                            }}
+                            className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                          />
+                          <label className="ml-3 text-sm text-black">Use (15$)</label>
+                        </div>
+                        <p className="text-xs text-[#1362cb] mt-2 ml-7">
+                          *Using the "Diplomats' Lane" will allow you to complete immigration procedures as quickly as possible. If it takes more than 15 minutes, you will receive a $15 refund. This is recommended for those without checked baggage.
+                        </p>
                       </div>
-                    ))}
+                    </FieldRequired>
                   </div>
-                </FieldRequired>
+                )}
               </div>
 
               <div className="grid grid-cols-2 gap-6">
@@ -393,63 +482,7 @@ const BookingStep1 = ({ bookingData, setBookingData }) => {
                 </div>
               </div>
 
-              {/* Only show "Complete within 15 min" option for first 3 packages (not 300$) */}
-              {formData.immigration_package !== '300$' && (
-                <div className="mt-6">
-                  <FieldRequired
-                    label="Option: Complete immigration procedures in under 15 minutes"
-                    required={true}
-                    error={errors.complete_within_15min}
-                    isEmpty={formData.complete_within_15min === undefined}
-                  >
-                    <div className="space-y-2">
-                      <div className="flex items-center">
-                        <input
-                          type="radio"
-                          name="complete_within_15min"
-                          value="false"
-                          checked={!formData.complete_within_15min}
-                          onChange={() => {
-                            if (errors.complete_within_15min) {
-                              setErrors(prev => {
-                                const newErrors = { ...prev };
-                                delete newErrors.complete_within_15min;
-                                return newErrors;
-                              });
-                            }
-                            setFormData(prev => ({ ...prev, complete_within_15min: false }));
-                          }}
-                          className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
-                        />
-                        <label className="ml-3 text-sm text-black">Do not use</label>
-                      </div>
-                      <div className="flex items-center">
-                        <input
-                          type="radio"
-                          name="complete_within_15min"
-                          value="true"
-                          checked={formData.complete_within_15min}
-                          onChange={() => {
-                            if (errors.complete_within_15min) {
-                              setErrors(prev => {
-                                const newErrors = { ...prev };
-                                delete newErrors.complete_within_15min;
-                                return newErrors;
-                              });
-                            }
-                            setFormData(prev => ({ ...prev, complete_within_15min: true }));
-                          }}
-                          className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
-                        />
-                        <label className="ml-3 text-sm text-black">Use (15$)</label>
-                      </div>
-                      <p className="text-xs text-[#1362cb] mt-2 ml-7">
-                        *Using the "Diplomats' Lane" will allow you to complete immigration procedures as quickly as possible. If it takes more than 15 minutes, you will receive a $15 refund. This is recommended for those without checked baggage.
-                      </p>
-                    </div>
-                  </FieldRequired>
-                </div>
-              )}
+
 
               <div className="mt-6">
                 <label className="flex items-center cursor-pointer">
@@ -535,7 +568,7 @@ const BookingStep1 = ({ bookingData, setBookingData }) => {
 
           {/* Emigration Form - Show when checked */}
           {formData.useEmigration && (
-            <div className="ml-8 mb-6 p-6 bg-gray-50 border border-gray-200 rounded-lg">
+            <div className="mb-6 p-6 bg-gray-50 border border-gray-200 rounded-lg">
               <div className="mb-6">
                 <FieldRequired label="Departure Fasttrack" required={true} error={errors.emigration_package} isEmpty={!formData.emigration_package}>
                   <div className="space-y-2">
@@ -575,10 +608,13 @@ const BookingStep1 = ({ bookingData, setBookingData }) => {
                         placeholder="Reservation number or code"
                         className={`flex-1 px-4 py-2 bg-[#a3e7a3] border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors.emigration_flight_reservation_num ? 'border-[#c02b0b]' : 'border-[#b98d5d]'}`}
                       />
-                      <label className="flex items-center text-sm text-black whitespace-nowrap">
+                      <label className="flex items-center text-sm text-black whitespace-nowrap cursor-pointer">
                         <input
                           type="checkbox"
-                          className="w-4 h-4 mr-1 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                          checked={formData.sameAsEntry}
+                          onChange={(e) => handleSameAsEntry(e.target.checked)}
+                          disabled={!formData.useImmigration || !formData.flight_reservation_num}
+                          className="w-4 h-4 mr-1 text-blue-600 border-gray-300 rounded focus:ring-blue-500 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                         />
                         Same as entry
                       </label>
@@ -662,13 +698,48 @@ const BookingStep1 = ({ bookingData, setBookingData }) => {
                   <label className="block text-sm font-medium text-black mb-2">
                     Desired meeting time at the departure airport (can be specified from 3 hours before departure):
                   </label>
-                  <input
-                    type="time"
-                    name="meeting_time"
-                    value={formData.meeting_time}
-                    onChange={handleInputChange}
-                    className="w-full px-4 py-2 bg-[#a3e7a3] border border-[#b98d5d] rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  />
+                  <div className="flex items-center gap-2">
+                    {/* Hours input box */}
+                    <input
+                      type="number"
+                      name="meeting_time_hours"
+                      min="0"
+                      max="23"
+                      value={formData.meeting_time ? parseInt(formData.meeting_time.split(':')[0] || '0') : ''}
+                      onChange={(e) => {
+                        const hours = e.target.value;
+                        const minutes = formData.meeting_time ? formData.meeting_time.split(':')[1] : '00';
+                        const timeValue = hours !== '' ? `${hours.padStart(2, '0')}:${minutes}` : '';
+                        setFormData(prev => ({
+                          ...prev,
+                          meeting_time: timeValue,
+                        }));
+                      }}
+                      placeholder="00"
+                      className="w-16 px-3 py-2 bg-[#a3e7a3] border border-gray-300 rounded-md text-center text-black font-medium focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    />
+                    {/* Colon separator */}
+                    <span className="text-black text-lg font-medium">:</span>
+                    {/* Minutes input box */}
+                    <input
+                      type="number"
+                      name="meeting_time_minutes"
+                      min="0"
+                      max="59"
+                      value={formData.meeting_time ? parseInt(formData.meeting_time.split(':')[1] || '0') : ''}
+                      onChange={(e) => {
+                        const minutes = e.target.value;
+                        const hours = formData.meeting_time ? formData.meeting_time.split(':')[0] : '00';
+                        const timeValue = minutes !== '' ? `${hours}:${minutes.padStart(2, '0')}` : '';
+                        setFormData(prev => ({
+                          ...prev,
+                          meeting_time: timeValue,
+                        }));
+                      }}
+                      placeholder="00"
+                      className="w-16 px-3 py-2 bg-[#a3e7a3] border border-gray-300 rounded-md text-center text-black font-medium focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    />
+                  </div>
                 </div>
               </div>
 

@@ -2,8 +2,9 @@ import { useState, useEffect, useRef } from 'react';
 import { validateCoupon } from '../services/bookingService';
 
 const PriceBar = ({ bookingData, onCouponApply }) => {
-  const [couponCode, setCouponCode] = useState('');
-  const [appliedCoupon, setAppliedCoupon] = useState(null);
+  // Initialize coupon state from bookingData to persist across steps
+  const [couponCode, setCouponCode] = useState(bookingData?.coupon?.code || '');
+  const [appliedCoupon, setAppliedCoupon] = useState(bookingData?.coupon?.appliedCoupon || null);
   const [couponError, setCouponError] = useState('');
   const [subtotal, setSubtotal] = useState(0);
   const [vat, setVat] = useState(0);
@@ -31,6 +32,22 @@ const PriceBar = ({ bookingData, onCouponApply }) => {
     pickupAtExit: 60,
     completeWithin15min: 15,
   };
+
+  // Sync coupon state when bookingData.coupon changes (e.g., when navigating between steps)
+  useEffect(() => {
+    const storedCoupon = bookingData?.coupon;
+    if (storedCoupon?.appliedCoupon) {
+      // Restore coupon from bookingData
+      setAppliedCoupon(storedCoupon.appliedCoupon);
+      setCouponCode(storedCoupon.code || '');
+      setCouponError('');
+    } else if (storedCoupon === null) {
+      // Explicitly cleared
+      setAppliedCoupon(null);
+      setCouponCode('');
+      setCouponError('');
+    }
+  }, [bookingData?.coupon]);
 
   useEffect(() => {
     if (isCalculatingRef.current) return;
@@ -91,6 +108,11 @@ const PriceBar = ({ bookingData, onCouponApply }) => {
         vat_price: calculatedVat,
         total_price: calculatedTotal,
         coupon_id: appliedCoupon?.id || null,
+        // Preserve existing coupon data if present
+        coupon: bookingData?.coupon || (appliedCoupon ? {
+          code: couponCode,
+          appliedCoupon: appliedCoupon,
+        } : null),
       };
       // Use requestAnimationFrame to avoid infinite loop
       requestAnimationFrame(() => {
@@ -121,15 +143,38 @@ const PriceBar = ({ bookingData, onCouponApply }) => {
     try {
       const response = await validateCoupon(couponCode);
       if (response.valid) {
-        setAppliedCoupon(response.coupon);
+        const coupon = response.coupon;
+        setAppliedCoupon(coupon);
         setCouponError('');
+
+        // Store coupon in bookingData for persistence across steps
+        if (onCouponApply) {
+          onCouponApply({
+            coupon: {
+              code: couponCode.trim().toUpperCase(),
+              appliedCoupon: coupon,
+            },
+          });
+        }
       } else {
         setCouponError(response.message || 'Invalid coupon code');
         setAppliedCoupon(null);
+        // Clear coupon from bookingData if invalid
+        if (onCouponApply) {
+          onCouponApply({
+            coupon: null,
+          });
+        }
       }
     } catch (error) {
       setCouponError(error.response?.data?.message || 'Invalid coupon');
       setAppliedCoupon(null);
+      // Clear coupon from bookingData on error
+      if (onCouponApply) {
+        onCouponApply({
+          coupon: null,
+        });
+      }
     }
   };
 
@@ -137,6 +182,14 @@ const PriceBar = ({ bookingData, onCouponApply }) => {
     setCouponCode('');
     setAppliedCoupon(null);
     setCouponError('');
+
+    // Remove coupon from bookingData
+    if (onCouponApply) {
+      onCouponApply({
+        coupon: null,
+        coupon_id: null,
+      });
+    }
   };
 
   return (
