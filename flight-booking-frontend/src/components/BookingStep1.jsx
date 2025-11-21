@@ -417,7 +417,10 @@ const BookingStep1 = ({ bookingData, setBookingData }) => {
                       onChange={handleInputChange}
                       required={formData.useImmigration}
                       placeholder="Reservation number or code"
-                      className={`w-full px-4 py-2 bg-[#a3e7a3] border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors.flight_reservation_num ? 'border-[#c02b0b]' : 'border-[#b98d5d]'}`}
+                      className={`w-full px-4 py-2 bg-[#a3e7a3] border
+                        border-[#f2f2f2]
+                        
+                         rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors.flight_reservation_num ? 'border-[#c02b0b]' : 'border-[#b98d5d]'}`}
                     />
                   </FieldRequired>
                 </div>
@@ -436,7 +439,9 @@ const BookingStep1 = ({ bookingData, setBookingData }) => {
                       onChange={handleInputChange}
                       required={formData.useImmigration}
                       placeholder="VN000"
-                      className={`w-full px-4 py-2 bg-[#a3e7a3] border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors.flight_num ? 'border-[#c02b0b]' : 'border-[#b98d5d]'}`}
+                      className={`w-full px-4 py-2 bg-[#a3e7a3] border
+
+                        border-[#f2f2f2] rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors.flight_num ? 'border-[#c02b0b]' : 'border-[#b98d5d]'}`}
                     />
                   </FieldRequired>
                 </div>
@@ -453,7 +458,8 @@ const BookingStep1 = ({ bookingData, setBookingData }) => {
                             checked={formData.airport === airport.value}
                             onChange={handleInputChange}
                             required={formData.useImmigration}
-                            className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                            className="w-4 h-4 
+                            text-blue-600 border-gray-300 focus:ring-blue-500"
                           />
                           <label className="ml-3 text-sm text-black">{airport.label}</label>
                         </div>
@@ -476,7 +482,9 @@ const BookingStep1 = ({ bookingData, setBookingData }) => {
                       onChange={handleInputChange}
                       required={formData.useImmigration}
                       placeholder="year/month/day"
-                      className={`w-full px-4 py-2 bg-[#a3e7a3] border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors.arrival_date ? 'border-[#c02b0b]' : 'border-[#b98d5d]'}`}
+                      className={`w-full px-4 py-2 bg-[#a3e7a3] border placeholder-gray-400
+                        border-[#f2f2f2]
+                        rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors.arrival_date ? 'border-[#c02b0b]' : 'border-[#b98d5d]'}`}
                     />
                   </FieldRequired>
                 </div>
@@ -530,7 +538,8 @@ const BookingStep1 = ({ bookingData, setBookingData }) => {
                     name="phone_num_of_picker"
                     value={formData.phone_num_of_picker}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-2 bg-[#a3e7a3] border border-[#b98d5d] rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-4 py-2 bg-[#a3e7a3] border 
+                    border-[#f2f2f2] rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   />
                 </div>
 
@@ -543,7 +552,7 @@ const BookingStep1 = ({ bookingData, setBookingData }) => {
                     value={formData.requirement}
                     onChange={handleInputChange}
                     rows={3}
-                    className="w-full px-4 py-2 bg-[#a3e7a3] border border-[#b98d5d] rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-4 py-2 bg-[#a3e7a3] border border-[#f2f2f2] rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   />
                 </div>
               </div>
@@ -606,7 +615,7 @@ const BookingStep1 = ({ bookingData, setBookingData }) => {
                         onChange={handleInputChange}
                         required={formData.useEmigration}
                         placeholder="Reservation number or code"
-                        className={`flex-1 px-4 py-2 bg-[#a3e7a3] border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors.emigration_flight_reservation_num ? 'border-[#c02b0b]' : 'border-[#b98d5d]'}`}
+                        className={`flex-1 px-4 py-2 bg-[#a3e7a3] border border-[#f2f2f2] rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors.emigration_flight_reservation_num ? 'border-[#c02b0b]' : 'border-[#b98d5d]'}`}
                       />
                       <label className="flex items-center text-sm text-black whitespace-nowrap cursor-pointer">
                         <input
@@ -636,7 +645,7 @@ const BookingStep1 = ({ bookingData, setBookingData }) => {
                       onChange={handleInputChange}
                       required={formData.useEmigration}
                       placeholder="VN999"
-                      className={`w-full px-4 py-2 bg-[#a3e7a3] border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors.emigration_flight_num ? 'border-[#c02b0b]' : 'border-[#b98d5d]'}`}
+                      className={`w-full px-4 py-2 bg-[#a3e7a3] border border-[#f2f2f2] rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors.emigration_flight_num ? 'border-[#c02b0b]' : 'border-[#b98d5d]'}`}
                     />
                   </FieldRequired>
                 </div>
@@ -676,7 +685,7 @@ const BookingStep1 = ({ bookingData, setBookingData }) => {
                       onChange={handleInputChange}
                       required={formData.useEmigration}
                       placeholder="year/month/day"
-                      className={`w-full px-4 py-2 bg-[#a3e7a3] border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors.departure_date ? 'border-[#c02b0b]' : 'border-[#b98d5d]'}`}
+                      className={`w-full px-4 py-2 bg-[#a3e7a3] border placeholder-gray-400 border-[#f2f2f2] rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors.departure_date ? 'border-[#c02b0b]' : 'border-[#b98d5d]'}`}
                     />
                   </FieldRequired>
                 </div>
@@ -690,7 +699,7 @@ const BookingStep1 = ({ bookingData, setBookingData }) => {
                     name="airline_membership_num"
                     value={formData.airline_membership_num}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-2 bg-[#a3e7a3] border border-[#b98d5d] rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-4 py-2 bg-[#a3e7a3] border border-[#f2f2f2] rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   />
                 </div>
 
@@ -715,7 +724,6 @@ const BookingStep1 = ({ bookingData, setBookingData }) => {
                           meeting_time: timeValue,
                         }));
                       }}
-                      placeholder="00"
                       className="w-16 px-3 py-2 bg-[#a3e7a3] border border-gray-300 rounded-md text-center text-black font-medium focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     />
                     {/* Colon separator */}
@@ -736,7 +744,6 @@ const BookingStep1 = ({ bookingData, setBookingData }) => {
                           meeting_time: timeValue,
                         }));
                       }}
-                      placeholder="00"
                       className="w-16 px-3 py-2 bg-[#a3e7a3] border border-gray-300 rounded-md text-center text-black font-medium focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     />
                   </div>
