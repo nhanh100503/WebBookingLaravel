@@ -810,6 +810,7 @@ const BookingStep1 = ({ bookingData, setBookingData }) => {
         {showPriceBar && (
           <PriceBar
             bookingData={{
+              ...bookingData, // Include all bookingData including coupon
               immigration: formData.useImmigration ? {
                 immigration_package: formData.immigration_package || '35$', // Default to first option if not selected
                 pickup_at_airplain_exit: formData.pickup_at_airplain_exit,
