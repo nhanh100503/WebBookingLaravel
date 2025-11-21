@@ -4,8 +4,10 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Requests\BookingRequest;
 use App\Services\BookingService;
-use App\Transformers\BookingTransformer;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Log;
+use App\Http\Controllers\Api\BaseApiController;
+use App\Transformers\BookingTransformer;
 
 class BookingController extends BaseApiController
 {
@@ -21,6 +23,7 @@ class BookingController extends BaseApiController
         $validatedData = $request->validated();
 
         try {
+            Log::info('BookingController@store called', ['payload' => $validatedData]);
             $booking = $this->bookingService->create($validatedData);
             return $this->respondWithItem($booking, new BookingTransformer(), 201);
         } catch (\Exception $e) {

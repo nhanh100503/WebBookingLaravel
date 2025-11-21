@@ -2,11 +2,11 @@
 
 namespace App\Repositories;
 
-use App\Contracts\Repositories\BaseRepositoryInterface;
+use App\Contracts\Repositories\CouponRepositoryInterface;
 use App\Models\Coupon;
 use Prettus\Repository\Criteria\RequestCriteria;
 
-class CouponRepository extends BaseRepository implements BaseRepositoryInterface
+class CouponRepository extends BaseRepository implements CouponRepositoryInterface
 {
     public function model(): string
     {
@@ -18,4 +18,3 @@ class CouponRepository extends BaseRepository implements BaseRepositoryInterface
         $this->pushCriteria(app(RequestCriteria::class));
     }
 }
-

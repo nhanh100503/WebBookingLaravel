@@ -2,11 +2,11 @@
 
 namespace App\Repositories;
 
-use App\Contracts\Repositories\BaseRepositoryInterface;
+use App\Contracts\Repositories\BookingRepositoryInterface;
 use App\Models\Booking;
 use Prettus\Repository\Criteria\RequestCriteria;
 
-class BookingRepository extends BaseRepository implements BaseRepositoryInterface
+class BookingRepository extends BaseRepository implements BookingRepositoryInterface
 {
     public function model(): string
     {
@@ -18,4 +18,3 @@ class BookingRepository extends BaseRepository implements BaseRepositoryInterfac
         $this->pushCriteria(app(RequestCriteria::class));
     }
 }
-

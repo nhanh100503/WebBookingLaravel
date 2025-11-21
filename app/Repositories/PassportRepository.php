@@ -2,11 +2,11 @@
 
 namespace App\Repositories;
 
-use App\Contracts\Repositories\BaseRepositoryInterface;
+use App\Contracts\Repositories\PassportRepositoryInterface;
 use App\Models\Passport;
 use Prettus\Repository\Criteria\RequestCriteria;
 
-class PassportRepository extends BaseRepository implements BaseRepositoryInterface
+class PassportRepository extends BaseRepository implements PassportRepositoryInterface
 {
     public function model(): string
     {
@@ -18,4 +18,3 @@ class PassportRepository extends BaseRepository implements BaseRepositoryInterfa
         $this->pushCriteria(app(RequestCriteria::class));
     }
 }
-

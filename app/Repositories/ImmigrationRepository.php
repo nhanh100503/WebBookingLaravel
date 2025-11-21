@@ -2,11 +2,11 @@
 
 namespace App\Repositories;
 
-use App\Contracts\Repositories\BaseRepositoryInterface;
+use App\Contracts\Repositories\ImmigrationRepositoryInterface;
 use App\Models\Immigration;
 use Prettus\Repository\Criteria\RequestCriteria;
 
-class ImmigrationRepository extends BaseRepository implements BaseRepositoryInterface
+class ImmigrationRepository extends BaseRepository implements ImmigrationRepositoryInterface
 {
     public function model(): string
     {
@@ -18,4 +18,3 @@ class ImmigrationRepository extends BaseRepository implements BaseRepositoryInte
         $this->pushCriteria(app(RequestCriteria::class));
     }
 }
-

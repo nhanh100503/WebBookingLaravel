@@ -2,11 +2,11 @@
 
 namespace App\Repositories;
 
-use App\Contracts\Repositories\BaseRepositoryInterface;
+use App\Contracts\Repositories\AddOnRepositoryInterface;
 use App\Models\AddOn;
 use Prettus\Repository\Criteria\RequestCriteria;
 
-class AddOnRepository extends BaseRepository implements BaseRepositoryInterface
+class AddOnRepository extends BaseRepository implements AddOnRepositoryInterface
 {
     public function model(): string
     {
@@ -18,4 +18,3 @@ class AddOnRepository extends BaseRepository implements BaseRepositoryInterface
         $this->pushCriteria(app(RequestCriteria::class));
     }
 }
-
