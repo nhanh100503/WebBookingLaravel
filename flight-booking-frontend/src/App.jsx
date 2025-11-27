@@ -30,49 +30,51 @@ function App() {
 
   return (
     <Router>
-      <div className="flex flex-wrap justify-center w-[90vw] mx-auto mb-8 rounded-lg overflow-hidden">
-        <img src="/uploads/vjp-flight-booking-banner.jpg" alt="" />
-      </div>
-      <div className="text-blue-800 flex flex-start w-[90vw] mx-auto mb-8 font-bold hover:underline">
-        <a href="https://vietjapan.vip/book-domestic/" target="_blank" rel="noopener noreferrer">
-          Vietnam domestic fast track booking available here &gt;&gt;
-        </a>
-      </div>
-      <div className="App">
-        <Routes>
-          <Route path="/" element={<Navigate to="/booking/step1" replace />} />
-          <Route
-            path="/booking/step1"
-            element={
-              <BookingStep1
-                bookingData={bookingData}
-                setBookingData={setBookingData}
-              />
-            }
-          />
-          <Route
-            path="/booking/step2"
-            element={
-              <BookingStep2
-                bookingData={bookingData}
-                setBookingData={setBookingData}
-              />
-            }
-          />
-          <Route
-            path="/booking/step3"
-            element={
-              <BookingStep3
-                bookingData={bookingData}
-                setBookingData={setBookingData}
-              />
-            }
-          />
-          <Route
-            path="/booking/success/:id"
-            element={<BookingSuccess />}
-          />
-        </Routes>
+      <div class="px-[40px]">
+        <div className="flex flex-wrap justify-center w-[vw] mx-auto mb-8 overflow-hidden">
+          <img src="/uploads/vjp-flight-booking-banner.jpg" alt="" />
+        </div>
+        <div className="text-blue-800 flex flex-start w-[90vw] mx-auto mb-8 font-bold hover:underline">
+          <a href="https://vietjapan.vip/book-domestic/" target="_blank" rel="noopener noreferrer">
+            ベトナム国内線ファストトラックの予約はこちら＞＞			
+          </a>
+        </div>
+        <div className="App">
+          <Routes>
+            <Route path="/" element={<Navigate to="/booking/step1" replace />} />
+            <Route
+              path="/booking/step1"
+              element={
+                <BookingStep1
+                  bookingData={bookingData}
+                  setBookingData={setBookingData}
+                />
+              }
+            />
+            <Route
+              path="/booking/step2"
+              element={
+                <BookingStep2
+                  bookingData={bookingData}
+                  setBookingData={setBookingData}
+                />
+              }
+            />
+            <Route
+              path="/booking/step3"
+              element={
+                <BookingStep3
+                  bookingData={bookingData}
+                  setBookingData={setBookingData}
+                />
+              }
+            />
+            <Route
+              path="/booking/success/:id"
+              element={<BookingSuccess />}
+            />
+          </Routes>
+        </div>
       </div>
     </Router>
   );

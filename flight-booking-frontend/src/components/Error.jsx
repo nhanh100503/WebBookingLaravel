@@ -7,7 +7,7 @@ const Error = ({ message }) => {
         <div className="w-6 h-6 rounded-full bg-red-600 flex items-center justify-center flex-shrink-0">
           <span className="text-white font-bold text-base">!</span>
         </div>
-        <p className="text-[#b98d5d] font-small">{message}</p>
+        <p className="text-[#b98d5d] font-small">回答に問題があります。 以下のフィールドを確認してください。</p>
       </div>
     </div>
   );

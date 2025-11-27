@@ -1,7 +1,14 @@
 import { useState, useEffect, useRef } from 'react';
 import { validateCoupon } from '../services/bookingService';
+import LineInquiry from './LineInquiry';
 
-const PriceBar = ({ bookingData, onCouponApply }) => {
+const PriceBar = ({
+  bookingData,
+  onCouponApply,
+  primaryActionLabel,
+  onPrimaryAction,
+  primaryActionDisabled = false,
+}) => {
   // Initialize coupon state from bookingData to persist across steps
   const [couponCode, setCouponCode] = useState(bookingData?.coupon?.code || '');
   const [appliedCoupon, setAppliedCoupon] = useState(bookingData?.coupon?.appliedCoupon || null);
@@ -136,7 +143,8 @@ const PriceBar = ({ bookingData, onCouponApply }) => {
 
   const handleCouponApply = async () => {
     if (!couponCode.trim()) {
-      setCouponError('Please enter a coupon code');
+      setCouponError('無効なクーポン。');
+      setCouponCode(''); // Clear input
       return;
     }
 
@@ -157,7 +165,9 @@ const PriceBar = ({ bookingData, onCouponApply }) => {
           });
         }
       } else {
-        setCouponError(response.message || 'Invalid coupon code');
+        // Invalid coupon: clear input and show error
+        setCouponCode('');
+        setCouponError('無効なクーポン。');
         setAppliedCoupon(null);
         // Clear coupon from bookingData if invalid
         if (onCouponApply) {
@@ -166,8 +176,10 @@ const PriceBar = ({ bookingData, onCouponApply }) => {
           });
         }
       }
-    } catch (error) {
-      setCouponError(error.response?.data?.message || 'Invalid coupon');
+    } catch (err) {
+      // Invalid coupon: clear input and show error
+      setCouponCode('');
+      setCouponError(err.response?.data?.message || '無効なクーポン。');
       setAppliedCoupon(null);
       // Clear coupon from bookingData on error
       if (onCouponApply) {
@@ -193,74 +205,100 @@ const PriceBar = ({ bookingData, onCouponApply }) => {
   };
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-white border-t-2 border-gray-200 shadow-lg z-50">
-      <div className="max-w-6xl mx-auto px-4 py-5">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-          {/* Coupon Section */}
-          <div className="flex-1 min-w-[250px]">
-            <div className="flex gap-2 items-center">
-              <span className="text-sm text-gray-700 mr-2">Coupon</span>
+    <div className="fixed bottom-0 left-0 right-0 bg-[#f0f8ff] border-t-1 border-black-200 shadow-lg z-50">
+
+
+      <div className="max-w-[1140px] mx-auto  px-4 py-2 h-40">
+
+        <div className="flex flex-col">
+          <div className="flex flex-wrap justify-around items-center mb-4">
+            {/* 仮計算 */}
+            <div className="flex items-center gap-8">
+              <span className="text-base text-black">仮計算</span>
+              <span className="text-xl font-bold text-[#ff0000]">${subtotal.toFixed(2)}</span>
+            </div>
+
+            {/* クーポン Section */}
+            <div className="relative flex items-center gap-2">
+              <span className="text-base text-black">クーポン</span>
               <input
                 type="text"
                 placeholder=""
                 value={couponCode}
-                onChange={(e) => setCouponCode(e.target.value)}
+                onChange={(e) => {
+                  setCouponCode(e.target.value);
+                  // Clear error when user starts typing
+                  if (couponError) {
+                    setCouponError('');
+                  }
+                }}
                 disabled={!!appliedCoupon}
-                className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
+                className="w-24 px-3 py-2 bg-[#a3e7a3] border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed text-base"
               />
-              {appliedCoupon ? (
-                <button
-                  onClick={handleCouponRemove}
-                  className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors"
-                >
-                  Remove
-                </button>
-              ) : (
-                <button
-                  onClick={handleCouponApply}
-                  className="px-4 py-2 bg-[#a3e7a3] text-black rounded-md hover:bg-[#8fd88f] focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors font-medium"
-                >
-                  Applicable
-                </button>
+
+              <button
+                onClick={handleCouponApply}
+                disabled={couponCode.trim() === '' || !!appliedCoupon}
+                className="px-3 py-2 bg-gray-300 text-black rounded-md hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors font-medium text-base disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-gray-300"
+              >
+                適用
+              </button>
+              {/* Error message - absolutely positioned, doesn't affect layout */}
+              {couponError && (
+                <div className="absolute top-full mt-1 px-2 py-1 bg-[#fff9f9] border border-[1px] border-[#000000] w-48 text-blue-600 text-base font-medium whitespace-nowrap z-10">
+                  無効なクーポン。
+                </div>
               )}
             </div>
-            {couponError && (
-              <div className="text-red-600 text-xs mt-1">
-                {couponError}
-              </div>
-            )}
-            {appliedCoupon && (
-              <div className="text-green-600 text-xs mt-1">
-                Coupon "{appliedCoupon.name}" applied!
-              </div>
-            )}
+
+
+            {/* 税金 */}
+            <div className="flex items-center gap-2">
+              <span className="text-base text-black">税金</span>
+              <span className="text-xl font-bold text-[#ff0000]">${vat.toFixed(2)}</span>
+            </div>
+
+
+            {/* 合計 */}
+            <div className="flex items-center gap-2">
+              <span className="text-base text-black">合計</span>
+
+              <span className="bg-[#a3e7a3] rounded-md w-24 p-2 text-center ">
+                ${total.toFixed(2)}
+              </span>
+            </div>
+
+
           </div>
 
-          {/* Price Summary */}
-          <div className="flex gap-6 md:gap-8 items-center flex-wrap">
-            <div className="text-right">
-              <div className="text-sm text-gray-600">Preliminary Calculation</div>
-              <div className="text-xl font-bold text-[#ff0000]">${subtotal.toFixed(2)}</div>
-            </div>
-            {appliedCoupon && (
-              <div className="text-right">
-                <div className="text-sm text-gray-600">Coupon</div>
-                <div className="text-xl font-bold text-green-600">
-                  -${(subtotal - (subtotal - (appliedCoupon.type === 'value_discount' ? appliedCoupon.discount : (subtotal * appliedCoupon.discount) / 100))).toFixed(2)}
-                </div>
-              </div>
-            )}
-            <div className="text-right">
-              <div className="text-sm text-gray-600">Tax</div>
-              <div className="text-xl font-bold text-[#ff0000]">${vat.toFixed(2)}</div>
-            </div>
-            <div className="text-right">
-              <div className="text-sm text-gray-600">Total</div>
-              <div className="text-2xl font-bold text-[#1362cb]">
-                ${total.toFixed(2)}
+          {/* Applied coupon info - show when coupon is valid */}
+          {appliedCoupon && (
+            <div className="flex items-center gap-2 mb-2">
+              <button
+                onClick={handleCouponRemove}
+                className="px-3 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors font-medium text-base"
+              >
+                <i className="fa-solid fa-trash text-white text-sm" />
+              </button>
+              <div className="text-blue-600 flex flex-row gap-6 font-semibold">
+                <div>{`${appliedCoupon.name}`}</div>
+                <div>{`-$${appliedCoupon.discount.toFixed(2)}`}</div>
               </div>
             </div>
-          </div>
+          )}
+
+          {/* Primary action button (optional, e.g. Enter User Information) */}
+          {primaryActionLabel && onPrimaryAction && (
+            <div className="flex justify-center">
+              <button
+                onClick={onPrimaryAction}
+                disabled={primaryActionDisabled}
+                className="px-6 py-3 bg-[#01ae00] text-white rounded-full font-medium hover:bg-[#018800] focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors text-base"
+              >
+                {primaryActionLabel}
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>

@@ -441,11 +441,11 @@ const BookingStep3 = ({ bookingData, setBookingData }) => {
                 </tr>
               ))}
               <tr className="border-t-2 border-gray-300">
-                <td colSpan="3" className="py-3 px-4 font-bold text-black text-right">subtotal</td>
+                <td colSpan="3" className="py-3 px-4 font-bold text-black text-right">Sub Total</td>
                 <td className="py-3 px-4 text-right font-bold text-black">${subtotal.toFixed(2)}</td>
               </tr>
               <tr>
-                <td colSpan="3" className="py-3 px-4 font-bold text-black text-right">coupon</td>
+                <td colSpan="3" className="py-3 px-4 font-bold text-black text-right">Coupon</td>
                 <td className="py-3 px-4 text-right font-bold text-green-600">- ${couponDiscount.toFixed(2)}</td>
               </tr>
               <tr>

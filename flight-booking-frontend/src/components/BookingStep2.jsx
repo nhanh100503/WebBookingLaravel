@@ -189,7 +189,7 @@ const BookingStep2 = ({ bookingData, setBookingData }) => {
       <div className="max-w-6xl mx-auto px-4 py-8 pb-32">
 
         {/* Error Message */}
-        <Error message={showError ? "There Is A Problem With Your Answer. Please Check The Fields Below." : null} />
+        <Error />
 
         <form onSubmit={(e) => { e.preventDefault(); handleNext(); }}>
           {/* All sections within one border */}
