@@ -284,8 +284,10 @@ const BookingStep1 = ({ bookingData, setBookingData }) => {
   };
 
   return (
+
     <div className="min-h-screen bg-white">
-      <div className="max-w-[1140px] mx-auto px-4 py-8 pb-32 text-left border border-gray-200 rounded-lg">
+
+      <div className="w-full custom:max-w-[1140px] px-4 py-8 pb-32 text-left border border-gray-200 rounded-lg">
         <ProcessIndicator currentStep={1} />
         <div className="border-b-1 border-[#CBCBCB] my-4" />
 
@@ -294,7 +296,7 @@ const BookingStep1 = ({ bookingData, setBookingData }) => {
         {/* Information Box */}
         <div className="mb-6 p-4 text-left">
           <div className="flex flex-wrap items-center text-[15px] text-gray-700">
-            <strong>⚡️アカウント登録不要・簡単に予約　|　🏃‍♂️出発または到着の4時間前までに予約可　|　 🇯🇵LINEで24時間日本語対応　|　👶0～2歳は無料 - 2～6歳は半額</strong>
+            <strong>⚡️アカウント登録不要・簡単に予約 | 🏃‍♂️出発または到着の4時間前までに予約可 | 🇯🇵LINEで24時間日本語対応 | 👶0～2歳は無料 - 2～6歳は半額</strong>
             <strong>✈️【キャンペーン実施中】10回ご利用いただくごとに、同じサービスパッケージの無料1回をプレゼント</strong>
           </div>
           <div className="mt-2 text-[15px] text-gray-700 text-right">
@@ -318,10 +320,12 @@ const BookingStep1 = ({ bookingData, setBookingData }) => {
               <span className="text-black text-base"> 入国ファストトラックのご利用（35$～）</span>
             </label>
           </div>
+
           {/* Immigration Form - Show when checked */}
           {formData.useImmigration && (
             //make the div bigger 
             <div className="mb-6 w-full">
+              <hr className="border-b-4 border-[#CBCBCB] my-8" />
               {/* Immigration Package and Complete within 15 minutes group using cols-2*/}
               <div className="grid grid-cols-2 gap-4">
                 <div className="mb-6">
@@ -418,7 +422,7 @@ const BookingStep1 = ({ bookingData, setBookingData }) => {
                       onChange={handleInputChange}
                       required={formData.useImmigration}
                       placeholder="予約番号や予約コード"
-                      className={`w-full px-4 py-2 bg-[#a3e7a3] border text-base
+                      className={`text-center w-full px-4 py-2 bg-[#a3e7a3] border text-base
                         border-[#f2f2f2]
                         
                          rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors.flight_reservation_num ? 'border-[#c02b0b]' : 'border-[#b98d5d]'}`}
@@ -440,7 +444,7 @@ const BookingStep1 = ({ bookingData, setBookingData }) => {
                       onChange={handleInputChange}
                       required={formData.useImmigration}
                       placeholder="VN000"
-                      className={`w-full px-4 py-2 bg-[#a3e7a3] border text-base
+                      className={`text-center w-full px-4 py-2 bg-[#a3e7a3] border text-base
 
                         border-[#f2f2f2] rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors.flight_num ? 'border-[#c02b0b]' : 'border-[#b98d5d]'}`}
                     />
@@ -483,7 +487,7 @@ const BookingStep1 = ({ bookingData, setBookingData }) => {
                       onChange={handleInputChange}
                       required={formData.useImmigration}
                       placeholder="year/month/day"
-                      className={`w-full px-4 py-2 bg-[#a3e7a3] border placeholder-gray-400 text-base
+                      className={`text-center w-full px-4 py-2 bg-[#a3e7a3] border placeholder-gray-400 text-base
                         border-[#f2f2f2]
                         rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors.arrival_date ? 'border-[#c02b0b]' : 'border-[#b98d5d]'}`}
                     />
@@ -603,7 +607,7 @@ const BookingStep1 = ({ bookingData, setBookingData }) => {
                     name="phone_num_of_picker"
                     value={formData.phone_num_of_picker}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-2 bg-[#a3e7a3] border text-base 
+                    className="text-center w-full px-4 py-2 bg-[#a3e7a3] border text-base 
                     border-[#f2f2f2] rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   />
                 </div>
@@ -617,14 +621,14 @@ const BookingStep1 = ({ bookingData, setBookingData }) => {
                     value={formData.requirement}
                     onChange={handleInputChange}
                     rows={1}
-                    className="w-full px-4 py-2 bg-[#a3e7a3] border border-[#f2f2f2] rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-base"
+                    className="text-center w-full px-4 py-2 bg-[#a3e7a3] border border-[#f2f2f2] rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-base"
                   />
                 </div>
               </div>
             </div>
           )}
 
-          <div className="border-b-4 border-[#CBCBCB] my-4" />
+          <hr className="border-b-4 border-[#CBCBCB] my-8" />
 
           {/* Emigration Checkbox */}
           <div className="mb-4">
@@ -639,6 +643,8 @@ const BookingStep1 = ({ bookingData, setBookingData }) => {
               <span className="text-black text-base">出国ファストトラックのご利用(50$～)</span>
             </label>
           </div>
+
+          <hr className="border-b-4 border-[#CBCBCB] my-8" />
 
           {/* Emigration Form - Show when checked */}
           {formData.useEmigration && (

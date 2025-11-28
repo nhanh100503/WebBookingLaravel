@@ -1,0 +1,15 @@
+lastname label: 性（パスポートと同じくご記入ください）
+firstname label: 名（パスポートと同じくご記入ください）
+sex label: 性別
+date of birth label: 生年月日
+phone number with country code label : 国コード 付電話番号（例：+81-050-6862-0772）
+Email address to receive notifications label: 案内を受け取るためのメールアドレス
+Email address you would like to CC label: CCを希望されるメールアドレス
+passport number label: パスポート No.
+Passport expiration date label: パスポートの有効期限満了日
+Optional information: If you would like a receipt issued to your company, please tell us the name of your company label: 任意情報：会社宛に領収書の発行が希望される場合、会社名を教えてください。
+Optional information: Name of person you referred label: 任意情報： ご紹介の方のお名前
+In order to provide you with the best possible support, please add our official LINE account as a friend. label お客様に最適なサポートを提供するために、弊社のLINE公式アカウントと友だち追加をお願いいたします。
+How did you find out about our Fast Track service? label: 弊社のファストトラックサービスはどのチャンネルから知りましたか？
+Would you like a free consultation regarding the following services? label: 以下のサービスについての無料相談をご希望しませんか。
+Our staff will provide free consultations in Japanese, and in some cases we may even give you discount coupons for affiliated services, so we appreciate your cooperation. text : 弊社のスタッフが日本語で無料相談を行い、場合によっては提携サービスの割引券をプレゼントすることもありますので、 ぜひご協力をよろしくお願いいたします。

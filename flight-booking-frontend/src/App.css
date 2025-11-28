@@ -1,7 +1,5 @@
 #root {
   max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
   /* Default to left aligned text – individual components can center as needed */
   text-align: left;
 }

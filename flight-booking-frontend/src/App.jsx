@@ -4,6 +4,8 @@ import BookingStep1 from './components/BookingStep1';
 import BookingStep2 from './components/BookingStep2';
 import BookingStep3 from './components/BookingStep3';
 import BookingSuccess from './components/BookingSuccess';
+import LineInquiry from './components/LineInquiry';
+import Footer from './components/Footer';
 import './App.css';
 
 function App() {
@@ -30,13 +32,14 @@ function App() {
 
   return (
     <Router>
-      <div class="px-[40px]">
+      <LineInquiry />
+      <div className="w-[90vw] mx-20 ">
         <div className="flex flex-wrap justify-center w-[vw] mx-auto mb-8 overflow-hidden">
           <img src="/uploads/vjp-flight-booking-banner.jpg" alt="" />
         </div>
         <div className="text-blue-800 flex flex-start w-[90vw] mx-auto mb-8 font-bold hover:underline">
           <a href="https://vietjapan.vip/book-domestic/" target="_blank" rel="noopener noreferrer">
-            ベトナム国内線ファストトラックの予約はこちら＞＞			
+            ベトナム国内線ファストトラックの予約はこちら＞＞
           </a>
         </div>
         <div className="App">
@@ -76,6 +79,7 @@ function App() {
           </Routes>
         </div>
       </div>
+      <Footer />
     </Router>
   );
 }

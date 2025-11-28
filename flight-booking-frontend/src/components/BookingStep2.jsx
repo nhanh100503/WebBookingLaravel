@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import PriceBar from './PriceBar';
 import ProcessIndicator from './ProcessIndicator';
 import Error from './Error';
 import FieldRequired from './FieldRequired';
@@ -29,36 +28,36 @@ const BookingStep2 = ({ bookingData, setBookingData }) => {
 
   // Survey channel options matching the image
   const surveyChannels = [
-    { value: 'introduction_by_acquaintance', label: 'Introduction by an acquaintance' },
+    { value: 'introduction_by_acquaintance', label: '知り合いのご紹介' },
+    { value: 'service_introduction_email', label: 'サービス紹介メール' },
     { value: 'facebook', label: 'Facebook' },
-    { value: 'search_sites', label: 'Search sites (Google, Yahoo, etc.)' },
-    { value: 'service_introduction_email', label: 'Service introduction email' },
-    { value: 'advertisement', label: 'advertisement' },
-    { value: 'reuse', label: 'reuse' },
+    { value: 'advertisement', label: '広告' },
+    { value: 'search_sites', label: ' 検索サイト（Google、Yahooなど）' },
+    { value: 'reuse', label: '再利用' },
   ];
 
   // Contact options matching the image
   const contactOptions = [
-    { value: 'line_joined_sent_message', label: 'Joined and sent a message' },
-    { value: 'email_only', label: 'I would prefer email only (response may be delayed at the airport)' },
-    { value: 'zalo', label: 'Please contact me at ZALO at the number above.' },
-    { value: 'add_line_later', label: 'Add LINE later' },
-    { value: 'phone_only', label: 'Phone only (problems with charges and roaming may occur)' },
-    { value: 'no_communication', label: 'I have no means of communication at the airport and would like to ask for advice.' },
+    { value: 'line_joined_sent_message', label: '加してメッセージ送った' },
+    { value: 'add_line_later', label: '後でLINE追加する' },
+    { value: 'email_only', label: 'メールだけ希望（空港で対応遅れる可能性ある）' },
+    { value: 'phone_only', label: '電話だけ希望（課金やローミングの問題発生可能性ある）' },
+    { value: 'zalo', label: '上の番号のZALOで連絡希望' },
+    { value: 'no_communication', label: '空港で連絡手段なし、相談したい' },
   ];
 
   // Add-ons options matching AddOnEnum
   const addOnsOptions = [
-    { value: 0, label: 'Airport Lounge' },
-    { value: 1, label: 'Hotels for Japanese and foreign tourists' },
-    { value: 2, label: 'Shopping spots' },
-    { value: 3, label: 'Rental Car' },
-    { value: 4, label: 'Airline tickets (purchase, change, etc.)' },
-    { value: 5, label: 'Restaurants for Japanese and foreign tourists' },
-    { value: 6, label: 'Massage, health care, beauty care' },
-    { value: 7, label: 'Interpretation and tourist information' },
-    { value: 8, label: 'golf' },
-    { value: 9, label: 'Finding Vietnamese suppliers and connecting with Vietnamese companies' },
+    { value: 0, label: '空港ラウンジ' }, //Airport Lounge
+    { value: 1, label: '日本人や外国人観光客向けのホテル' }, //Hotels for Japanese and foreign tourists
+    { value: 2, label: 'ショッピングスポット' }, //Shopping spots
+    { value: 3, label: 'レンタルカー' }, //Rental Car
+    { value: 4, label: '航空券（購入・変更等）' },
+    { value: 5, label: '日本人や外国人観光客向けのレストラン' }, //Restaurants for Japanese and foreign tourists
+    { value: 6, label: 'マッサージ・健康ケア・美容ケア' }, //Massage, health care, beauty care
+    { value: 7, label: '翻訳・観光情報' }, //Interpretation and tourist information
+    { value: 8, label: 'ゴルフ' }, //golf
+    { value: 9, label: 'ベトナムサプライヤー探し・ベトナム会社繋がり' }, //Finding Vietnamese suppliers and connecting with Vietnamese companies
   ];
 
   const handleInputChange = (e) => {
@@ -182,14 +181,13 @@ const BookingStep2 = ({ bookingData, setBookingData }) => {
     navigate('/booking/step3');
   };
 
-  const showPriceBar = bookingData?.immigration || bookingData?.emigration;
 
   return (
     <div className="min-h-screen bg-white">
       <div className="max-w-6xl mx-auto px-4 py-8 pb-32">
 
         {/* Error Message */}
-        <Error />
+        <Error message={showError ? "There Is A Problem With Your Answer. Please Check The Fields Below." : null} />
 
         <form onSubmit={(e) => { e.preventDefault(); handleNext(); }}>
           {/* All sections within one border */}
@@ -208,7 +206,7 @@ const BookingStep2 = ({ bookingData, setBookingData }) => {
                 {/* Last Name */}
                 <div>
                   <FieldRequired
-                    label="Last name (please fill in the same as in your passport)"
+                    label="性（パスポートと同じくご記入ください）"
                     required={true}
                     error={errors.last_name}
                     isEmpty={isInputEmpty(formData.last_name)}
@@ -218,7 +216,7 @@ const BookingStep2 = ({ bookingData, setBookingData }) => {
                       name="last_name"
                       value={formData.last_name}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-2 bg-[#a3e7a3] border border-[#f2f2f2] rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full px-4 py-2 bg-[#a3e7a3] border border-[#f2f2f2] rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-base"
                     />
                   </FieldRequired>
                 </div>
@@ -226,7 +224,7 @@ const BookingStep2 = ({ bookingData, setBookingData }) => {
                 {/* First Name */}
                 <div>
                   <FieldRequired
-                    label="First name (please write it as it appears on your passport)"
+                    label="名（パスポートと同じくご記入ください）"
                     required={true}
                     error={errors.first_name}
                     isEmpty={isInputEmpty(formData.first_name)}
@@ -236,84 +234,86 @@ const BookingStep2 = ({ bookingData, setBookingData }) => {
                       name="first_name"
                       value={formData.first_name}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-2 bg-[#a3e7a3] border border-[#f2f2f2] rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full px-4 py-2 bg-[#a3e7a3] border border-[#f2f2f2] rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-base"
                     />
                   </FieldRequired>
                 </div>
 
-                {/* Sex and Date of Birth - grouped in 2 columns */}
-                <div className="col-span-2 grid grid-cols-2 gap-6 w-[49%]">
-                  {/* Sex */}
-                  <div>
-                    <FieldRequired label="Sex" required={true} error={errors.gender} isEmpty={!formData.gender}>
-                      <div className="mt-2 flex gap-6">
-                        <div className="flex items-center">
-                          <input
-                            type="radio"
-                            name="gender"
-                            value="male"
-                            checked={formData.gender === 'male'}
-                            onChange={handleInputChange}
-                            className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
-                          />
-                          <label className="ml-3 text-sm text-black">Male</label>
+                {/* Sex, Date of Birth, and Phone Number - grouped */}
+                <div className="col-span-2 grid grid-cols-2 gap-6">
+                  {/* Sex and Date of Birth - grouped in one column */}
+                  <div className="grid grid-cols-2 gap-6">
+                    {/* Sex */}
+                    <div>
+                      <FieldRequired label="性別" required={true} error={errors.gender} isEmpty={!formData.gender}>
+                        <div className="mt-2 flex gap-6">
+                          <div className="flex items-center">
+                            <input
+                              type="radio"
+                              name="gender"
+                              value="male"
+                              checked={formData.gender === 'male'}
+                              onChange={handleInputChange}
+                              className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                            />
+                            <label className="ml-3 text-base text-black">男性</label>
+                          </div>
+                          <div className="flex items-center">
+                            <input
+                              type="radio"
+                              name="gender"
+                              value="female"
+                              checked={formData.gender === 'female'}
+                              onChange={handleInputChange}
+                              className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                            />
+                            <label className="ml-3 text-base text-black">女性</label>
+                          </div>
                         </div>
-                        <div className="flex items-center">
-                          <input
-                            type="radio"
-                            name="gender"
-                            value="female"
-                            checked={formData.gender === 'female'}
-                            onChange={handleInputChange}
-                            className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
-                          />
-                          <label className="ml-3 text-sm text-black">Female</label>
-                        </div>
-                      </div>
-                    </FieldRequired>
+                      </FieldRequired>
+                    </div>
+                    {/* Date of Birth */}
+                    <div>
+                      <FieldRequired
+                        label="生年月日"
+                        required={true}
+                        error={errors.birthday}
+                        isEmpty={!formData.birthday}
+                      >
+                        <input
+                          type="date"
+                          name="birthday"
+                          value={formData.birthday}
+                          onChange={handleInputChange}
+                          className="w-full px-4 py-2 bg-[#a3e7a3] border border-[#f2f2f2] rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-base"
+                        />
+                      </FieldRequired>
+                    </div>
                   </div>
-                  {/* Date of Birth */}
-                  <div>
+                  {/* Phone Number */}
+                  <div className="text-start">
                     <FieldRequired
-                      label="Date of birth"
+                      label="国コード 付電話番号（例：+81-050-6862-0772）"
                       required={true}
-                      error={errors.birthday}
-                      isEmpty={!formData.birthday}
+                      error={errors.phone_num}
+                      isEmpty={isInputEmpty(formData.phone_num)}
                     >
                       <input
-                        type="date"
-                        name="birthday"
-                        value={formData.birthday}
+                        type="tel"
+                        name="phone_num"
+                        value={formData.phone_num}
                         onChange={handleInputChange}
-                        className="w-full px-4 py-2 bg-[#a3e7a3] border border-[#f2f2f2] rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        placeholder=""
+                        className="w-full px-4 py-2 bg-[#a3e7a3] border border-[#f2f2f2] rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-base"
                       />
                     </FieldRequired>
                   </div>
                 </div>
 
-                {/* Phone Number */}
-                <div className="text-start">
-                  <FieldRequired
-                    label="Phone number with country code (e.g. +81-050-6862-0772)"
-                    required={true}
-                    error={errors.phone_num}
-                    isEmpty={isInputEmpty(formData.phone_num)}
-                  >
-                    <input
-                      type="tel"
-                      name="phone_num"
-                      value={formData.phone_num}
-                      onChange={handleInputChange}
-                      placeholder="+84913360358"
-                      className="w-full px-4 py-2 bg-[#a3e7a3] border border-[#f2f2f2] rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    />
-                  </FieldRequired>
-                </div>
-
                 {/* Email */}
                 <div className="text-start">
                   <FieldRequired
-                    label="Email address to receive notifications"
+                    label="案内を受け取るためのメールアドレス"
                     required={true}
                     error={errors.email}
                     isEmpty={isInputEmpty(formData.email)}
@@ -323,7 +323,7 @@ const BookingStep2 = ({ bookingData, setBookingData }) => {
                       name="email"
                       value={formData.email}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-2 bg-[#a3e7a3] border border-[#f2f2f2] rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full px-4 py-2 bg-[#a3e7a3] border border-[#f2f2f2] rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-base"
                     />
                   </FieldRequired>
                 </div>
@@ -331,7 +331,7 @@ const BookingStep2 = ({ bookingData, setBookingData }) => {
                 {/* Email CC */}
                 <div>
                   <FieldRequired
-                    label="Email address you would like to CC"
+                    label="CCを希望されるメールアドレス"
                     required={false}
                   >
                     <input
@@ -339,7 +339,7 @@ const BookingStep2 = ({ bookingData, setBookingData }) => {
                       name="email_cc"
                       value={formData.email_cc}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-2 bg-[#a3e7a3] border border-[#f2f2f2] rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full px-4 py-2 bg-[#a3e7a3] border border-[#f2f2f2] rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-base"
                     />
                   </FieldRequired>
                 </div>
@@ -347,7 +347,7 @@ const BookingStep2 = ({ bookingData, setBookingData }) => {
                 {/* Passport Number */}
                 <div className="text-start">
                   <FieldRequired
-                    label="Passport No."
+                    label="パスポート No."
                     required={true}
                     error={errors.passport_num}
                     isEmpty={isInputEmpty(formData.passport_num)}
@@ -357,7 +357,7 @@ const BookingStep2 = ({ bookingData, setBookingData }) => {
                       name="passport_num"
                       value={formData.passport_num}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-2 bg-[#a3e7a3] border border-[#f2f2f2] rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full px-4 py-2 bg-[#a3e7a3] border border-[#f2f2f2] rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-base"
                     />
                   </FieldRequired>
                 </div>
@@ -365,7 +365,7 @@ const BookingStep2 = ({ bookingData, setBookingData }) => {
                 {/* Passport Expiration Date */}
                 <div className="text-start">
                   <FieldRequired
-                    label="Passport expiration date"
+                    label="パスポートの有効期限満了日"
                     required={true}
                     error={errors.expire_date}
                     isEmpty={!formData.expire_date}
@@ -375,7 +375,7 @@ const BookingStep2 = ({ bookingData, setBookingData }) => {
                       name="expire_date"
                       value={formData.expire_date}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-2 bg-[#a3e7a3] border border-[#f2f2f2] rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full px-4 py-2 bg-[#a3e7a3] border border-[#f2f2f2] rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-base"
                     />
                   </FieldRequired>
                 </div>
@@ -383,7 +383,7 @@ const BookingStep2 = ({ bookingData, setBookingData }) => {
                 {/* Company Name */}
                 <div className="text-start">
                   <FieldRequired
-                    label="Optional information: If you would like a receipt issued to your company, please tell us the name of your company."
+                    label="任意情報：会社宛に領収書の発行が希望される場合、会社名を教えてください。"
                     required={false}
                   >
                     <input
@@ -391,8 +391,8 @@ const BookingStep2 = ({ bookingData, setBookingData }) => {
                       name="company_name"
                       value={formData.company_name}
                       onChange={handleInputChange}
-                      placeholder="Other"
-                      className="w-full px-4 py-2 bg-[#a3e7a3] border border-[#f2f2f2] rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      placeholder=""
+                      className="w-full px-4 py-2 bg-[#a3e7a3] border border-[#f2f2f2] rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-base"
                     />
                   </FieldRequired>
                 </div>
@@ -400,7 +400,7 @@ const BookingStep2 = ({ bookingData, setBookingData }) => {
                 {/* Referer Name */}
                 <div className="text-start">
                   <FieldRequired
-                    label="Optional information: Name of person you referred"
+                    label="任意情報： ご紹介の方のお名前"
                     required={false}
                   >
                     <input
@@ -409,7 +409,7 @@ const BookingStep2 = ({ bookingData, setBookingData }) => {
                       value={formData.referer_name}
                       onChange={handleInputChange}
 
-                      className="w-full px-4 py-2 bg-[#a3e7a3] border border-[#f2f2f2] rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full px-4 py-2 bg-[#a3e7a3] border border-[#f2f2f2] rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-base"
                     />
                   </FieldRequired>
                 </div>
@@ -417,7 +417,7 @@ const BookingStep2 = ({ bookingData, setBookingData }) => {
             </div>
 
             {/* LINE Contact Section */}
-            <div className="mb-6 pt-4 border-gray-200">
+            <div className="mb-4 mx-24 pt-4 border-gray-200">
               <div className="flex flex-col md:flex-row gap-6">
                 {/* QR Code Section */}
                 <div className="flex-shrink-0">
@@ -429,12 +429,12 @@ const BookingStep2 = ({ bookingData, setBookingData }) => {
                 {/* Contact Options */}
                 <div className="flex-1">
                   <FieldRequired
-                    label="In order to provide you with the best possible support, please add our official LINE account as a friend."
+                    label="お客様に最適なサポートを提供するために、弊社のLINE公式アカウントと友だち追加をお願いいたします。"
                     required={true}
                     error={errors.contact}
                     isEmpty={!formData.contact}
                   >
-                    <div className="mt-3 space-y-2">
+                    <div className="mt-3 space-y-2 grid grid-cols-2  gap-2">
                       {contactOptions.map(option => (
                         <div key={option.value} className="flex items-center">
                           <input
@@ -445,12 +445,12 @@ const BookingStep2 = ({ bookingData, setBookingData }) => {
                             onChange={handleInputChange}
                             className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
                           />
-                          <label className="ml-3 text-sm text-black">{option.label}</label>
+                          <label className="ml-3 text-base text-black">{option.label}</label>
                         </div>
                       ))}
                     </div>
-                    <p className="mt-3 text-sm text-blue-600 text-start">
-                      *Free Wi-Fi is available at airports in Vietnam.
+                    <p className="mt-3 text-base text-blue-600 text-start">
+                      ※ベトナムの空港では無料Wi-Fiがあります。
                     </p>
                   </FieldRequired>
                 </div>
@@ -460,12 +460,12 @@ const BookingStep2 = ({ bookingData, setBookingData }) => {
             {/* Survey Channel Section */}
             <div className="mb-6 pt-5 border-gray-200 text-start">
               <FieldRequired
-                label="How did you find out about our Fast Track service?"
+                label="弊社のファストトラックサービスはどのチャンネルから知りましたか？"
                 required={true}
                 error={errors.survey_channel}
                 isEmpty={!formData.survey_channel}
               >
-                <div className="mt-3 space-y-2">
+                <div className="mt-3 space-y-2 grid grid-cols-2 gap-2">
                   {surveyChannels.map(channel => (
                     <div key={channel.value} className="flex items-center">
                       <input
@@ -476,7 +476,7 @@ const BookingStep2 = ({ bookingData, setBookingData }) => {
                         onChange={handleInputChange}
                         className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
                       />
-                      <label className="ml-3 text-sm text-black">{channel.label}</label>
+                      <label className="ml-3 text-base text-black">{channel.label}</label>
                     </div>
                   ))}
                 </div>
@@ -485,52 +485,64 @@ const BookingStep2 = ({ bookingData, setBookingData }) => {
 
             {/* Add-ons Section */}
             <div className="pt-4 border-gray-200 text-start">
-              <label className="block text-sm font-medium text-black mb-4">
-                Would you like a free consultation regarding the following services?
+              <label className="block text-base font-medium text-black mb-4">
+                以下のサービスについての無料相談をご希望しませんか。
               </label>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                {addOnsOptions.map(addOn => (
-                  <div key={addOn.value} className="flex items-center">
-                    <input
-                      type="checkbox"
-                      checked={formData.add_ons?.includes(addOn.value) || false}
-                      onChange={(e) => handleAddOnChange(addOn.value, e.target.checked)}
-                      className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                    />
-                    <label className="ml-3 text-sm text-black">{addOn.label}</label>
-                  </div>
-                ))}
+              <div className="grid grid-cols-2 gap-3">
+                {/* Left Column: value0, value1, value2, value3, value4 */}
+                <div className="space-y-3">
+                  {addOnsOptions.filter(addOn => addOn.value <= 4).map(addOn => (
+                    <div key={addOn.value} className="flex items-center">
+                      <input
+                        type="checkbox"
+                        checked={formData.add_ons?.includes(addOn.value) || false}
+                        onChange={(e) => handleAddOnChange(addOn.value, e.target.checked)}
+                        className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                      />
+                      <label className="ml-3 text-base text-black cursor-pointer">{addOn.label}</label>
+                    </div>
+                  ))}
+                </div>
+                {/* Right Column: value5, value6, value7, value8, value9 */}
+                <div className="space-y-3">
+                  {addOnsOptions.filter(addOn => addOn.value >= 5).map(addOn => (
+                    <div key={addOn.value} className="flex items-center">
+                      <input
+                        type="checkbox"
+                        checked={formData.add_ons?.includes(addOn.value) || false}
+                        onChange={(e) => handleAddOnChange(addOn.value, e.target.checked)}
+                        className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                      />
+                      <label className="ml-3 text-base text-black cursor-pointer">{addOn.label}</label>
+                    </div>
+                  ))}
+                </div>
               </div>
-              <p className="mt-4 text-sm text-gray-700">
-                Our staff will provide free consultations in Japanese, and in some cases we may even give you discount coupons for affiliated services, so we appreciate your cooperation.
+              <p className="mt-4 text-base text-blue-900">
+                弊社のスタッフが日本語で無料相談を行い、場合によっては提携サービスの割引券をプレゼントすることもありますので、 ぜひご協力をよろしくお願いいたします。
               </p>
             </div>
           </div>
 
           {/* Navigation Buttons */}
-          <div className="flex justify-evenly gap-4 mt-8">
+          <div className="flex justify-center gap-2 mt-8">
             <button
               type="button"
               onClick={handleBack}
-              className="px-6 py-3 bg-white border-2 border-gray-300 text-gray-700 rounded-full hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 font-medium"
+              className="px-6 py-3 bg-white border-2 border-gray-300 text-gray-700 rounded-full hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 font-medium text-base"
             >
-              Back Confirm
+              戻る
             </button>
             <button
+              //hover with bg-white-500 with slow transition
               type="submit"
-              className="px-6 py-3 bg-[#01ae00] text-white rounded-full hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 font-medium"
+              className="px-8 py-3 bg-[#01ae00] text-white rounded-full hover:bg-green-300 focus:outline-none focus:ring-2 focus:ring-green-500 font-medium transition-all duration-300 text-base"
             >
-              Reservation Information
+              予約情報の確認
             </button>
           </div>
         </form>
 
-        {showPriceBar && (
-          <PriceBar
-            bookingData={bookingData}
-            onCouponApply={(priceData) => setBookingData(prev => ({ ...prev, ...priceData }))}
-          />
-        )}
       </div>
     </div>
   );
