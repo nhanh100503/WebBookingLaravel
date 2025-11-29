@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { createBooking } from '../services/bookingService';
 import ProcessIndicator from './ProcessIndicator';
 
-const BookingStep3 = ({ bookingData }) => {
+const BookingStep3 = ({ bookingData, onPrevStep }) => {
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
@@ -170,7 +170,9 @@ const BookingStep3 = ({ bookingData }) => {
   };
 
   const handleBack = () => {
-    navigate('/booking/step2');
+    if (onPrevStep) {
+      onPrevStep();
+    }
   };
 
   const handleSubmit = async () => {
@@ -240,6 +242,9 @@ const BookingStep3 = ({ bookingData }) => {
       };
 
       const response = await createBooking(submitData);
+
+      // Clear step from localStorage when going to success
+      localStorage.removeItem('bookingStep');
 
       // Navigate to success page with booking ID
       navigate(`/booking/success/${response.data.id}`);

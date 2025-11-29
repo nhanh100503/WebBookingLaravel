@@ -206,10 +206,7 @@ const PriceBar = ({
 
   return (
     <div className="fixed bottom-0 left-0 right-0 bg-[#f0f8ff] border-t-1 border-black-200 shadow-lg z-40">
-
-
-      <div className="max-w-[1140px] mx-auto  px-4 py-2 h-40">
-
+      <div className="max-w-[1140px] mx-auto px-4 py-2 h-34 max-[700px]:h-44">
         <div className="flex flex-col">
           <div className="flex flex-wrap justify-around items-center mb-4">
             {/* 仮計算 */}
@@ -287,13 +284,15 @@ const PriceBar = ({
             </div>
           )}
 
-          {/* Primary action button (optional, e.g. Enter User Information) */}
+          {/* Primary action button (optional, e.g. Enter User Information) 
+          when click disable the outline of the button
+          */}
           {primaryActionLabel && onPrimaryAction && (
             <div className="flex justify-center">
               <button
                 onClick={onPrimaryAction}
                 disabled={primaryActionDisabled}
-                className="px-6 py-3 bg-[#01ae00] text-white rounded-full font-medium hover:bg-[#018800] focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors text-base"
+                className="w-full max-w-md px-8 py-3 bg-[#01ae00] text-white rounded-full font-medium hover:bg-green-200 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors text-base disabled:outline-none"
               >
                 {primaryActionLabel}
               </button>

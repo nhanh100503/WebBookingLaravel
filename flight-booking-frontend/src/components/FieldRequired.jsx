@@ -11,7 +11,7 @@ const FieldRequired = ({ label, required, children, error, isEmpty }) => {
       </label>
       {children}
       {hasError && (
-        <div className="mt-1 p-2 bg-[#fff5f5] border border-[#c02b0b] rounded">
+        <div className="mt-1 p-3 border border-[#c02b0b]">
           <p className="text-base text-blue-600">このフィールドは必須です。</p>
         </div>
       )}

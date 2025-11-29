@@ -1,11 +1,10 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import ProcessIndicator from './ProcessIndicator';
 import Error from './Error';
 import FieldRequired from './FieldRequired';
+import JapaneseDatePicker from './JapaneseDatePicker';
 
-const BookingStep2 = ({ bookingData, setBookingData }) => {
-  const navigate = useNavigate();
+const BookingStep2 = ({ bookingData, setBookingData, onNextStep, onPrevStep }) => {
   const [formData, setFormData] = useState({
     first_name: bookingData?.passport?.first_name || '',
     last_name: bookingData?.passport?.last_name || '',
@@ -136,7 +135,9 @@ const BookingStep2 = ({ bookingData, setBookingData }) => {
   };
 
   const handleBack = () => {
-    navigate('/booking/step1');
+    if (onPrevStep) {
+      onPrevStep();
+    }
   };
 
   const handleNext = () => {
@@ -178,7 +179,9 @@ const BookingStep2 = ({ bookingData, setBookingData }) => {
     };
 
     setBookingData(updatedData);
-    navigate('/booking/step3');
+    if (onNextStep) {
+      onNextStep();
+    }
   };
 
 
@@ -216,7 +219,7 @@ const BookingStep2 = ({ bookingData, setBookingData }) => {
                       name="last_name"
                       value={formData.last_name}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-2 bg-[#a3e7a3] border border-[#f2f2f2] rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-base"
+                      className={`w-full px-4 py-3 bg-[#a3e7a3] border border-[#f2f2f2] rounded-lg focus:outline-none text-base ${errors.last_name ? 'border-[#c02b0b]' : 'border-[#b98d5d]'}`}
                     />
                   </FieldRequired>
                 </div>
@@ -234,7 +237,7 @@ const BookingStep2 = ({ bookingData, setBookingData }) => {
                       name="first_name"
                       value={formData.first_name}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-2 bg-[#a3e7a3] border border-[#f2f2f2] rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-base"
+                      className={`w-full px-4 py-3 bg-[#a3e7a3] border border-[#f2f2f2] rounded-lg focus:outline-none text-base ${errors.first_name ? 'border-[#c02b0b]' : 'border-[#b98d5d]'}`}
                     />
                   </FieldRequired>
                 </div>
@@ -246,30 +249,30 @@ const BookingStep2 = ({ bookingData, setBookingData }) => {
                     {/* Sex */}
                     <div>
                       <FieldRequired label="性別" required={true} error={errors.gender} isEmpty={!formData.gender}>
-                        <div className="mt-2 flex gap-6">
-                          <div className="flex items-center">
+                        <fieldset className="mt-2 flex gap-6 border-none p-0 m-0">
+                          <label className="flex items-center cursor-pointer">
                             <input
                               type="radio"
                               name="gender"
                               value="male"
                               checked={formData.gender === 'male'}
                               onChange={handleInputChange}
-                              className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                              className={`w-4 h-4 focus:outline-none cursor-pointer ${errors.gender && !formData.gender ? 'border-[#c02b0b] text-[#c02b0b]' : 'text-blue-600 border-gray-300'}`}
                             />
-                            <label className="ml-3 text-base text-black">男性</label>
-                          </div>
-                          <div className="flex items-center">
+                            <span className={`ml-3 text-base ${errors.gender && !formData.gender ? 'text-[#c02b0b]' : 'text-black'}`}>男性</span>
+                          </label>
+                          <label className="flex items-center cursor-pointer">
                             <input
                               type="radio"
                               name="gender"
                               value="female"
                               checked={formData.gender === 'female'}
                               onChange={handleInputChange}
-                              className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                              className={`w-4 h-4 focus:outline-none cursor-pointer ${errors.gender && !formData.gender ? 'border-[#c02b0b] text-[#c02b0b]' : 'text-blue-600 border-gray-300'}`}
                             />
-                            <label className="ml-3 text-base text-black">女性</label>
-                          </div>
-                        </div>
+                            <span className={`ml-3 text-base ${errors.gender && !formData.gender ? 'text-[#c02b0b]' : 'text-black'}`}>女性</span>
+                          </label>
+                        </fieldset>
                       </FieldRequired>
                     </div>
                     {/* Date of Birth */}
@@ -280,12 +283,14 @@ const BookingStep2 = ({ bookingData, setBookingData }) => {
                         error={errors.birthday}
                         isEmpty={!formData.birthday}
                       >
-                        <input
-                          type="date"
+                        <JapaneseDatePicker
                           name="birthday"
                           value={formData.birthday}
                           onChange={handleInputChange}
-                          className="w-full px-4 py-2 bg-[#a3e7a3] border border-[#f2f2f2] rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-base"
+                          placeholder="年/月/日"
+                          maxDate={new Date()}
+                          className={`w-full px-4 py-3 bg-[#a3e7a3] border border-[#f2f2f2] rounded-lg focus:outline-none text-base ${errors.birthday ? 'border-[#c02b0b]' : 'border-[#b98d5d]'}`}
+                          error={errors.birthday}
                         />
                       </FieldRequired>
                     </div>
@@ -304,7 +309,7 @@ const BookingStep2 = ({ bookingData, setBookingData }) => {
                         value={formData.phone_num}
                         onChange={handleInputChange}
                         placeholder=""
-                        className="w-full px-4 py-2 bg-[#a3e7a3] border border-[#f2f2f2] rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-base"
+                        className={`w-full px-4 py-3 bg-[#a3e7a3] border border-[#f2f2f2] rounded-lg focus:outline-none text-base ${errors.phone_num ? 'border-[#c02b0b]' : 'border-[#b98d5d]'}`}
                       />
                     </FieldRequired>
                   </div>
@@ -323,7 +328,7 @@ const BookingStep2 = ({ bookingData, setBookingData }) => {
                       name="email"
                       value={formData.email}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-2 bg-[#a3e7a3] border border-[#f2f2f2] rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-base"
+                      className={`w-full px-4 py-3 bg-[#a3e7a3] border border-[#f2f2f2] rounded-lg focus:outline-none text-base ${errors.email ? 'border-[#c02b0b]' : 'border-[#b98d5d]'}`}
                     />
                   </FieldRequired>
                 </div>
@@ -339,7 +344,7 @@ const BookingStep2 = ({ bookingData, setBookingData }) => {
                       name="email_cc"
                       value={formData.email_cc}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-2 bg-[#a3e7a3] border border-[#f2f2f2] rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-base"
+                      className="w-full px-4 py-3 bg-[#a3e7a3] border border-[#f2f2f2] rounded-lg focus:outline-none text-base"
                     />
                   </FieldRequired>
                 </div>
@@ -357,7 +362,7 @@ const BookingStep2 = ({ bookingData, setBookingData }) => {
                       name="passport_num"
                       value={formData.passport_num}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-2 bg-[#a3e7a3] border border-[#f2f2f2] rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-base"
+                      className={`w-full px-4 py-3 bg-[#a3e7a3] border border-[#f2f2f2] rounded-lg focus:outline-none text-base ${errors.passport_num ? 'border-[#c02b0b]' : 'border-[#b98d5d]'}`}
                     />
                   </FieldRequired>
                 </div>
@@ -370,12 +375,14 @@ const BookingStep2 = ({ bookingData, setBookingData }) => {
                     error={errors.expire_date}
                     isEmpty={!formData.expire_date}
                   >
-                    <input
-                      type="date"
+                    <JapaneseDatePicker
                       name="expire_date"
                       value={formData.expire_date}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-2 bg-[#a3e7a3] border border-[#f2f2f2] rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-base"
+                      placeholder="年/月/日"
+                      minDate={new Date()}
+                      className={`w-full px-4 py-3 bg-[#a3e7a3] border border-[#f2f2f2] rounded-lg focus:outline-none text-base ${errors.expire_date ? 'border-[#c02b0b]' : 'border-[#b98d5d]'}`}
+                      error={errors.expire_date}
                     />
                   </FieldRequired>
                 </div>
@@ -392,7 +399,7 @@ const BookingStep2 = ({ bookingData, setBookingData }) => {
                       value={formData.company_name}
                       onChange={handleInputChange}
                       placeholder=""
-                      className="w-full px-4 py-2 bg-[#a3e7a3] border border-[#f2f2f2] rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-base"
+                      className="w-full px-4 py-3 bg-[#a3e7a3] border border-[#f2f2f2] rounded-lg focus:outline-none text-base"
                     />
                   </FieldRequired>
                 </div>
@@ -409,7 +416,7 @@ const BookingStep2 = ({ bookingData, setBookingData }) => {
                       value={formData.referer_name}
                       onChange={handleInputChange}
 
-                      className="w-full px-4 py-2 bg-[#a3e7a3] border border-[#f2f2f2] rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-base"
+                      className="w-full px-4 py-3 bg-[#a3e7a3] border border-[#f2f2f2] rounded-lg focus:outline-none text-base"
                     />
                   </FieldRequired>
                 </div>
@@ -434,21 +441,21 @@ const BookingStep2 = ({ bookingData, setBookingData }) => {
                     error={errors.contact}
                     isEmpty={!formData.contact}
                   >
-                    <div className="mt-3 space-y-2 grid grid-cols-2  gap-2">
+                    <fieldset className="mt-3 space-y-2 grid grid-cols-2 gap-2 border-none p-0 m-0">
                       {contactOptions.map(option => (
-                        <div key={option.value} className="flex items-center">
+                        <label key={option.value} className="flex items-center cursor-pointer">
                           <input
                             type="radio"
                             name="contact"
                             value={option.value}
                             checked={formData.contact === option.value}
                             onChange={handleInputChange}
-                            className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                            className="w-4 h-4 text-blue-600 border-gray-300 focus:outline-none cursor-pointer"
                           />
-                          <label className="ml-3 text-base text-black">{option.label}</label>
-                        </div>
+                          <span className="ml-3 text-base text-black">{option.label}</span>
+                        </label>
                       ))}
-                    </div>
+                    </fieldset>
                     <p className="mt-3 text-base text-blue-600 text-start">
                       ※ベトナムの空港では無料Wi-Fiがあります。
                     </p>
@@ -465,21 +472,21 @@ const BookingStep2 = ({ bookingData, setBookingData }) => {
                 error={errors.survey_channel}
                 isEmpty={!formData.survey_channel}
               >
-                <div className="mt-3 space-y-2 grid grid-cols-2 gap-2">
+                <fieldset className="mt-3 space-y-2 grid grid-cols-2 gap-2 border-none p-0 m-0">
                   {surveyChannels.map(channel => (
-                    <div key={channel.value} className="flex items-center">
+                    <label key={channel.value} className="flex items-center cursor-pointer">
                       <input
                         type="radio"
                         name="survey_channel"
                         value={channel.value}
                         checked={formData.survey_channel === channel.value}
                         onChange={handleInputChange}
-                        className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                        className="w-4 h-4 text-blue-600 border-gray-300 focus:outline-none cursor-pointer"
                       />
-                      <label className="ml-3 text-base text-black">{channel.label}</label>
-                    </div>
+                      <span className="ml-3 text-base text-black">{channel.label}</span>
+                    </label>
                   ))}
-                </div>
+                </fieldset>
               </FieldRequired>
             </div>
 
@@ -497,7 +504,7 @@ const BookingStep2 = ({ bookingData, setBookingData }) => {
                         type="checkbox"
                         checked={formData.add_ons?.includes(addOn.value) || false}
                         onChange={(e) => handleAddOnChange(addOn.value, e.target.checked)}
-                        className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                        className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:outline-none"
                       />
                       <label className="ml-3 text-base text-black cursor-pointer">{addOn.label}</label>
                     </div>
@@ -511,7 +518,7 @@ const BookingStep2 = ({ bookingData, setBookingData }) => {
                         type="checkbox"
                         checked={formData.add_ons?.includes(addOn.value) || false}
                         onChange={(e) => handleAddOnChange(addOn.value, e.target.checked)}
-                        className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                        className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:outline-none"
                       />
                       <label className="ml-3 text-base text-black cursor-pointer">{addOn.label}</label>
                     </div>

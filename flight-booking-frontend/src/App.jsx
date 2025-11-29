@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import BookingStep1 from './components/BookingStep1';
 import BookingStep2 from './components/BookingStep2';
@@ -8,27 +8,47 @@ import LineInquiry from './components/LineInquiry';
 import Footer from './components/Footer';
 import './App.css';
 
+const STORAGE_KEY = 'bookingData';
+const STEP_STORAGE_KEY = 'bookingStep';
+
 function App() {
-  const [bookingData, setBookingData] = useState({
-    type: null,
-    immigration: null,
-    emigration: null,
-    passport: null,
-    contact: '',
-    survey_channel: '',
-    first_name: '',
-    last_name: '',
-    phone_num: '',
-    email: '',
-    email_cc: '',
-    company_name: '',
-    referer_name: '',
-    service_price: 0,
-    sub_price: 0,
-    vat_price: 0,
-    total_price: 0,
-    coupon_id: null,
+  const [bookingData, setBookingData] = useState(() => {
+    // Load from localStorage on mount
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) {
+        console.error('Error parsing saved booking data:', e);
+      }
+    }
+    // Default state
+    return {
+      type: null,
+      immigration: null,
+      emigration: null,
+      passport: null,
+      contact: '',
+      survey_channel: '',
+      first_name: '',
+      last_name: '',
+      phone_num: '',
+      email: '',
+      email_cc: '',
+      company_name: '',
+      referer_name: '',
+      service_price: 0,
+      sub_price: 0,
+      vat_price: 0,
+      total_price: 0,
+      coupon_id: null,
+    };
   });
+
+  // Save to localStorage whenever bookingData changes
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(bookingData));
+  }, [bookingData]);
 
   return (
     <Router>
@@ -44,29 +64,11 @@ function App() {
         </div>
         <div className="App">
           <Routes>
-            <Route path="/" element={<Navigate to="/booking/step1" replace />} />
+            <Route path="/" element={<Navigate to="/book-now/" replace />} />
             <Route
-              path="/booking/step1"
+              path="/book-now/"
               element={
-                <BookingStep1
-                  bookingData={bookingData}
-                  setBookingData={setBookingData}
-                />
-              }
-            />
-            <Route
-              path="/booking/step2"
-              element={
-                <BookingStep2
-                  bookingData={bookingData}
-                  setBookingData={setBookingData}
-                />
-              }
-            />
-            <Route
-              path="/booking/step3"
-              element={
-                <BookingStep3
+                <BookingStepRouter
                   bookingData={bookingData}
                   setBookingData={setBookingData}
                 />
@@ -82,6 +84,58 @@ function App() {
       <Footer />
     </Router>
   );
+}
+
+// Router component to handle step routing with internal state
+function BookingStepRouter({ bookingData, setBookingData }) {
+  const [currentStep, setCurrentStep] = useState(() => {
+    // Load step from localStorage on mount
+    const saved = localStorage.getItem(STEP_STORAGE_KEY);
+    return saved ? parseInt(saved) : 1;
+  });
+
+  // Save step to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem(STEP_STORAGE_KEY, currentStep.toString());
+  }, [currentStep]);
+
+  const handleNextStep = () => {
+    setCurrentStep(prev => prev + 1);
+  };
+
+  const handlePrevStep = () => {
+    setCurrentStep(prev => Math.max(1, prev - 1));
+  };
+
+  switch (currentStep) {
+    case 1:
+      return (
+        <BookingStep1
+          bookingData={bookingData}
+          setBookingData={setBookingData}
+          onNextStep={handleNextStep}
+        />
+      );
+    case 2:
+      return (
+        <BookingStep2
+          bookingData={bookingData}
+          setBookingData={setBookingData}
+          onNextStep={handleNextStep}
+          onPrevStep={handlePrevStep}
+        />
+      );
+    case 3:
+      return (
+        <BookingStep3
+          bookingData={bookingData}
+          onPrevStep={handlePrevStep}
+        />
+      );
+    default:
+      setCurrentStep(1);
+      return null;
+  }
 }
 
 export default App;
