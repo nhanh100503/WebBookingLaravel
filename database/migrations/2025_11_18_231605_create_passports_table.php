@@ -19,6 +19,7 @@ return new class extends Migration
             $table->date('expire_date');
             $table->string('gender', 100);
             $table->string('phone_num', 20);
+            $table->string('nationality', 100)->nullable();
             $table->string('email', 100);
             $table->string('email_cc', 100)->nullable();
             $table->string('passport_num', 50);

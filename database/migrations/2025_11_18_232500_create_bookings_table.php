@@ -31,6 +31,7 @@ return new class extends Migration
             $table->decimal('sub_price', 10, 2)->default(0);
             $table->decimal('vat_price', 10, 2)->default(0);
             $table->decimal('total_price', 10, 2)->default(0);
+            $table->string('payment_method', 100)->nullable();
 
             $table->foreignId('coupon_id')->nullable()->constrained('coupons')->nullOnDelete();
             $table->foreignId('passport_id')->constrained('passports')->cascadeOnDelete();

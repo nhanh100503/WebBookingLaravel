@@ -8,47 +8,32 @@ import LineInquiry from './components/LineInquiry';
 import Footer from './components/Footer';
 import './App.css';
 
-const STORAGE_KEY = 'bookingData';
 const STEP_STORAGE_KEY = 'bookingStep';
 
-function App() {
-  const [bookingData, setBookingData] = useState(() => {
-    // Load from localStorage on mount
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) {
-      try {
-        return JSON.parse(saved);
-      } catch (e) {
-        console.error('Error parsing saved booking data:', e);
-      }
-    }
-    // Default state
-    return {
-      type: null,
-      immigration: null,
-      emigration: null,
-      passport: null,
-      contact: '',
-      survey_channel: '',
-      first_name: '',
-      last_name: '',
-      phone_num: '',
-      email: '',
-      email_cc: '',
-      company_name: '',
-      referer_name: '',
-      service_price: 0,
-      sub_price: 0,
-      vat_price: 0,
-      total_price: 0,
-      coupon_id: null,
-    };
-  });
+const getDefaultBookingData = () => ({
+  type: null,
+  immigration: null,
+  emigration: null,
+  passport: null,
+  contact: '',
+  survey_channel: '',
+  first_name: '',
+  last_name: '',
+  phone_num: '',
+  email: '',
+  email_cc: '',
+  company_name: '',
+  referer_name: '',
+  service_price: 0,
+  sub_price: 0,
+  vat_price: 0,
+  total_price: 0,
+  coupon_id: null,
+});
 
-  // Save to localStorage whenever bookingData changes
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(bookingData));
-  }, [bookingData]);
+function App() {
+  // bookingData is kept purely in React state; we do NOT persist it to localStorage.
+  const [bookingData, setBookingData] = useState(getDefaultBookingData);
 
   return (
     <Router>

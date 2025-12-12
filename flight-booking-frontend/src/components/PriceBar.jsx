@@ -13,9 +13,11 @@ const PriceBar = ({
   const [couponCode, setCouponCode] = useState(bookingData?.coupon?.code || '');
   const [appliedCoupon, setAppliedCoupon] = useState(bookingData?.coupon?.appliedCoupon || null);
   const [couponError, setCouponError] = useState('');
+  const [usedCouponCodes, setUsedCouponCodes] = useState([]); // Track codes already used in this session (in-memory only)
   const [subtotal, setSubtotal] = useState(0);
   const [vat, setVat] = useState(0);
   const [total, setTotal] = useState(0);
+  const [paymentMethod, setPaymentMethod] = useState(bookingData?.payment_method || 'online_credit');
   const isCalculatingRef = useRef(false);
 
   // Package prices
@@ -46,7 +48,6 @@ const PriceBar = ({
     if (storedCoupon?.appliedCoupon) {
       // Restore coupon from bookingData
       setAppliedCoupon(storedCoupon.appliedCoupon);
-      setCouponCode(storedCoupon.code || '');
       setCouponError('');
     } else if (storedCoupon === null) {
       // Explicitly cleared
@@ -55,6 +56,24 @@ const PriceBar = ({
       setCouponError('');
     }
   }, [bookingData?.coupon]);
+
+  // Initialize payment method on mount if not set
+  useEffect(() => {
+    if (!bookingData?.payment_method && paymentMethod === 'online_credit') {
+      // Save default payment method to bookingData on initial mount
+      if (onCouponApply) {
+        onCouponApply({ payment_method: 'online_credit' });
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Sync payment method from bookingData
+  useEffect(() => {
+    if (bookingData?.payment_method) {
+      setPaymentMethod(bookingData.payment_method);
+    }
+  }, [bookingData?.payment_method]);
 
   useEffect(() => {
     if (isCalculatingRef.current) return;
@@ -142,50 +161,62 @@ const PriceBar = ({
   ]);
 
   const handleCouponApply = async () => {
-    if (!couponCode.trim()) {
+    const rawCode = couponCode.trim();
+    const normalizedCode = rawCode.toUpperCase();
+
+    if (!rawCode) {
       setCouponError('無効なクーポン。');
       setCouponCode(''); // Clear input
       return;
     }
 
+    // Prevent applying a coupon if one is already applied
+    if (appliedCoupon) {
+      setCouponError('既にクーポンが適用されています。新しいクーポンを適用するには、まず現在のクーポンを削除してください。');
+      setCouponCode(''); // Clear input
+      return;
+    }
+
+    // Clear input immediately regardless of result
+    setCouponCode('');
+
+    // Prevent applying the same coupon multiple times in this session
+    if (usedCouponCodes.includes(normalizedCode)) {
+      setCouponError('このクーポンは複数回適用できません。');
+      return;
+    }
+
     try {
-      const response = await validateCoupon(couponCode);
+      const response = await validateCoupon(normalizedCode);
       if (response.valid) {
         const coupon = response.coupon;
         setAppliedCoupon(coupon);
         setCouponError('');
+        setUsedCouponCodes(prev => (prev.includes(normalizedCode) ? prev : [...prev, normalizedCode]));
 
         // Store coupon in bookingData for persistence across steps
         if (onCouponApply) {
           onCouponApply({
             coupon: {
-              code: couponCode.trim().toUpperCase(),
+              code: normalizedCode,
               appliedCoupon: coupon,
             },
           });
         }
       } else {
-        // Invalid coupon: clear input and show error
-        setCouponCode('');
         setCouponError('無効なクーポン。');
-        setAppliedCoupon(null);
-        // Clear coupon from bookingData if invalid
-        if (onCouponApply) {
-          onCouponApply({
-            coupon: null,
-          });
-        }
       }
     } catch (err) {
-      // Invalid coupon: clear input and show error
-      setCouponCode('');
-      setCouponError(err.response?.data?.message || '無効なクーポン。');
-      setAppliedCoupon(null);
-      // Clear coupon from bookingData on error
-      if (onCouponApply) {
-        onCouponApply({
-          coupon: null,
-        });
+      // Backend error or invalid coupon; show message but keep existing coupon
+      const errorMessage = err.response?.data?.message || '無効なクーポン。';
+
+      // Handle specific error messages
+      if (errorMessage.includes('Coupon code not found') || errorMessage.includes('not found')) {
+        setCouponError('無効なクーポン。');
+      } else if (errorMessage.includes('expired') || errorMessage.includes('Coupon has expired')) {
+        setCouponError('無効なクーポンです。');
+      } else {
+        setCouponError('無効なクーポン。');
       }
     }
   };
@@ -194,6 +225,7 @@ const PriceBar = ({
     setCouponCode('');
     setAppliedCoupon(null);
     setCouponError('');
+    setUsedCouponCodes([]);
 
     // Remove coupon from bookingData
     if (onCouponApply) {
@@ -206,96 +238,203 @@ const PriceBar = ({
 
   return (
     <div className="fixed bottom-0 left-0 right-0 bg-[#f0f8ff] border-t-1 border-black-200 shadow-lg z-40">
-      <div className="max-w-[1140px] mx-auto px-4 py-2 h-34 max-[700px]:h-44">
+      <div className="max-w-[1140px] mx-auto px-4 py-2 h-38 max-[700px]:h-44">
         <div className="flex flex-col">
-          <div className="flex flex-wrap justify-around items-center mb-4">
+          <div className="flex flex-wrap justify-between items-start">
             {/* 仮計算 */}
-            <div className="flex items-center gap-8">
-              <span className="text-base text-black">仮計算</span>
-              <span className="text-xl font-bold text-[#ff0000]">${subtotal.toFixed(2)}</span>
+            <div className="flex flex-col items-start">
+              <span className="text-base text-black font-bold">仮計算</span>
+              <span className="text-base font-regular text-[#ff0000]">${subtotal.toFixed(2)}</span>
             </div>
 
             {/* クーポン Section */}
-            <div className="relative flex items-center gap-2">
-              <span className="text-base text-black">クーポン</span>
-              <input
-                type="text"
-                placeholder=""
-                value={couponCode}
-                onChange={(e) => {
-                  setCouponCode(e.target.value);
-                  // Clear error when user starts typing
-                  if (couponError) {
-                    setCouponError('');
-                  }
-                }}
-                disabled={!!appliedCoupon}
-                className="w-24 px-3 py-2 bg-[#a3e7a3] border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed text-base"
-              />
+            <div className="relative flex flex-col gap-2 min-h-[70px]">
+              <div className="flex items-center gap-2">
+                <span className="text-base text-black font-bold">クーポン</span>
+                <input
+                  type="text"
+                  placeholder=""
+                  value={couponCode}
+                  onChange={(e) => {
+                    setCouponCode(e.target.value);
+                    // Clear error when user starts typing
+                    if (couponError) {
+                      setCouponError('');
+                    }
+                  }}
+                  disabled={!!appliedCoupon}
+                  className="w-24 px-3 py-2 bg-[#a3e7a3] border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-base disabled:opacity-50 disabled:cursor-not-allowed"
+                />
 
-              <button
-                onClick={handleCouponApply}
-                disabled={couponCode.trim() === '' || !!appliedCoupon}
-                className="px-3 py-2 bg-gray-300 text-black rounded-md hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors font-medium text-base disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-gray-300"
-              >
-                適用
-              </button>
+                {/* when bg-[#01ae00] hover:bg-gray-300*/}
+                <button
+                  onClick={handleCouponApply}
+                  disabled={couponCode.trim() === '' || !!appliedCoupon}
+                  className="px-3 py-2 bg-[#01ae00] text-white rounded-md hover:bg-green-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors font-medium text-base disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-gray-300"
+                >
+                  適用
+                </button>
+              </div>
+
+              {/* Applied coupon info - show below input/button */}
+              {appliedCoupon && (
+                <button
+                  onClick={handleCouponRemove}
+                  className="flex items-center gap-3 font-semibold text-[#015cc8] border-b border-dashed border-[#015cc8] w-fit"
+                >
+                  <span className="flex items-center justify-center w-4 h-4 font-bold rounded-full border-[1.5px] border-[#a42021] text-[#a42021] text-base">
+                    ×
+                  </span>
+                  <span>{appliedCoupon.name}</span>
+                  <span className="ml-6 ">-{`$${appliedCoupon.discount.toFixed(2)}`}</span>
+                </button>
+              )}
+
               {/* Error message - absolutely positioned, doesn't affect layout */}
               {couponError && (
-                <div className="absolute top-full mt-1 px-2 py-1 bg-[#fff9f9] border border-[1px] border-[#000000] w-48 text-blue-600 text-base font-medium whitespace-nowrap z-10">
-                  無効なクーポン。
+                <div className="absolute top-[70%] px-1 bg-[#fff9f9] border border-[1px] border-[#c02b0b] w-38 text-blue-600 text-sm font-medium whitespace-pre-line z-10">
+                  {couponError}
                 </div>
               )}
             </div>
 
-
             {/* 税金 */}
             <div className="flex items-center gap-2">
-              <span className="text-base text-black">税金</span>
-              <span className="text-xl font-bold text-[#ff0000]">${vat.toFixed(2)}</span>
+              <span className="text-base text-black font-bold">税金</span>
+              <span className="text-base font-regular text-[#ff0000]">${vat.toFixed(2)}</span>
             </div>
-
 
             {/* 合計 */}
             <div className="flex items-center gap-2">
-              <span className="text-base text-black">合計</span>
-
+              <span className="text-base text-black font-bold">合計</span>
               <span className="bg-[#a3e7a3] rounded-md w-24 p-2 text-center ">
                 ${total.toFixed(2)}
               </span>
             </div>
-
-
           </div>
 
-          {/* Applied coupon info - show when coupon is valid */}
-          {appliedCoupon && (
-            <div className="flex items-center gap-2 mb-2">
-              <button
-                onClick={handleCouponRemove}
-                className="px-3 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors font-medium text-base"
-              >
-                <i className="fa-solid fa-trash text-white text-sm" />
-              </button>
-              <div className="text-blue-600 flex flex-row gap-6 font-semibold">
-                <div>{`${appliedCoupon.name}`}</div>
-                <div>{`-$${appliedCoupon.discount.toFixed(2)}`}</div>
-              </div>
-            </div>
-          )}
-
-          {/* Primary action button (optional, e.g. Enter User Information) 
-          when click disable the outline of the button
-          */}
+          {/* Payment Method Section and Action Button in flex-row */}
           {primaryActionLabel && onPrimaryAction && (
-            <div className="flex justify-center">
+            <div className="flex flex-row items-center justify-between gap-4">
+              {/* Payment Method Section */}
+              <div className="flex items-center gap-4 flex-1">
+                <label className="text-base font-bold text-black whitespace-nowrap">支払方法</label>
+                <fieldset className="flex gap-5">
+                  <label className="flex items-center cursor-pointer">
+                    <input
+                      type="radio"
+                      name="payment_method"
+                      value="cash"
+                      checked={paymentMethod === 'cash'}
+                      onChange={(e) => {
+                        setPaymentMethod(e.target.value);
+                        if (onCouponApply) {
+                          onCouponApply({ payment_method: e.target.value });
+                        }
+                      }}
+                      className="w-4 h-4 text-blue-600 border-gray-300 focus:outline-none cursor-pointer"
+                    />
+                    <span className="ml-3 text-base text-black">現金払い</span>
+                  </label>
+                  <label className="flex items-center cursor-pointer">
+                    <input
+                      type="radio"
+                      name="payment_method"
+                      value="online_credit"
+                      checked={paymentMethod === 'online_credit'}
+                      onChange={(e) => {
+                        setPaymentMethod(e.target.value);
+                        if (onCouponApply) {
+                          onCouponApply({ payment_method: e.target.value });
+                        }
+                      }}
+                      className="w-4 h-4 text-blue-600 border-gray-300 focus:outline-none cursor-pointer"
+                    />
+                    <span className="ml-3 text-base text-black">オンラインでクレジット決済</span>
+                  </label>
+                  <label className="flex items-center cursor-pointer">
+                    <input
+                      type="radio"
+                      name="payment_method"
+                      value="vietnam_bank_transfer"
+                      checked={paymentMethod === 'vietnam_bank_transfer'}
+                      onChange={(e) => {
+                        setPaymentMethod(e.target.value);
+                        if (onCouponApply) {
+                          onCouponApply({ payment_method: e.target.value });
+                        }
+                      }}
+                      className="w-4 h-4 text-blue-600 border-gray-300 focus:outline-none cursor-pointer"
+                    />
+                    <span className="ml-3 text-base text-black">ベトナム口座振込</span>
+                  </label>
+                </fieldset>
+              </div>
+
               <button
                 onClick={onPrimaryAction}
                 disabled={primaryActionDisabled}
-                className="w-full max-w-md px-8 py-3 bg-[#01ae00] text-white rounded-full font-medium hover:bg-green-200 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors text-base disabled:outline-none"
+                className="px-6 py-3 bg-[#01ae00] text-white rounded-full font-medium hover:bg-green-200 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors text-base disabled:outline-none whitespace-nowrap"
               >
                 {primaryActionLabel}
               </button>
+            </div>
+          )}
+
+          {/* Payment Method Section when no action button */}
+          {(!primaryActionLabel || !onPrimaryAction) && (
+            <div className="w-full flex justify-center gap-20">
+              <label className="block text-base font-bold text-black mb-2 text-center">支払方法</label>
+              <fieldset className="flex justify-center gap-5">
+                <label className="flex items-center cursor-pointer">
+                  <input
+                    type="radio"
+                    name="payment_method"
+                    value="cash"
+                    checked={paymentMethod === 'cash'}
+                    onChange={(e) => {
+                      setPaymentMethod(e.target.value);
+                      if (onCouponApply) {
+                        onCouponApply({ payment_method: e.target.value });
+                      }
+                    }}
+                    className="w-4 h-4 text-blue-600 border-gray-300 focus:outline-none cursor-pointer"
+                  />
+                  <span className="ml-3 text-base text-black">現金払い</span>
+                </label>
+                <label className="flex items-center cursor-pointer">
+                  <input
+                    type="radio"
+                    name="payment_method"
+                    value="online_credit"
+                    checked={paymentMethod === 'online_credit'}
+                    onChange={(e) => {
+                      setPaymentMethod(e.target.value);
+                      if (onCouponApply) {
+                        onCouponApply({ payment_method: e.target.value });
+                      }
+                    }}
+                    className="w-4 h-4 text-blue-600 border-gray-300 focus:outline-none cursor-pointer"
+                  />
+                  <span className="ml-3 text-base text-black">オンラインでクレジット決済</span>
+                </label>
+                <label className="flex items-center cursor-pointer">
+                  <input
+                    type="radio"
+                    name="payment_method"
+                    value="vietnam_bank_transfer"
+                    checked={paymentMethod === 'vietnam_bank_transfer'}
+                    onChange={(e) => {
+                      setPaymentMethod(e.target.value);
+                      if (onCouponApply) {
+                        onCouponApply({ payment_method: e.target.value });
+                      }
+                    }}
+                    className="w-4 h-4 text-blue-600 border-gray-300 focus:outline-none cursor-pointer"
+                  />
+                  <span className="ml-3 text-base text-black">ベトナム口座振込</span>
+                </label>
+              </fieldset>
             </div>
           )}
         </div>

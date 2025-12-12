@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect, useMemo } from 'react';
+import { parse, differenceInMonths } from 'date-fns';
 import ProcessIndicator from './ProcessIndicator';
 import Error from './Error';
 import FieldRequired from './FieldRequired';
@@ -12,6 +13,7 @@ const BookingStep2 = ({ bookingData, setBookingData, onNextStep, onPrevStep }) =
     expire_date: bookingData?.passport?.expire_date || '',
     gender: bookingData?.passport?.gender || '',
     phone_num: bookingData?.passport?.phone_num || '',
+    nationality: bookingData?.passport?.nationality || '',
     email: bookingData?.passport?.email || '',
     email_cc: bookingData?.passport?.email_cc || '',
     passport_num: bookingData?.passport?.passport_num || '',
@@ -24,6 +26,73 @@ const BookingStep2 = ({ bookingData, setBookingData, onNextStep, onPrevStep }) =
 
   const [errors, setErrors] = useState({});
   const [showError, setShowError] = useState(false);
+
+  // Check if passport expiration date is less than 6 months away from the arrival date
+  // Show warning initially, hide it when passport expires more than 6 months after arrival date
+  // Only show warning if immigration package is selected (not for emigration only)
+  const showPassportWarning = useMemo(() => {
+    // Don't show warning if only emigration is selected (no immigration)
+    if (!bookingData?.immigration && bookingData?.emigration) {
+      return false;
+    }
+
+    // Show warning initially if no expiration date is set
+    if (!formData.expire_date) return true;
+
+    try {
+      const expireDate = parse(formData.expire_date, 'yyyy-MM-dd', new Date());
+
+      // Get arrival date from immigration (not maximum, just the arrival date)
+      if (!bookingData?.immigration?.arrival_date) {
+        // If no arrival date is set yet, show warning as reminder
+        return true;
+      }
+
+      const arrivalDate = parse(bookingData.immigration.arrival_date, 'yyyy-MM-dd', new Date());
+
+      // Check if passport expires within 6 months FROM the arrival date
+      // Calculate from arrival date to expire date
+      // Show warning if expire date is less than 6 months after arrival date
+      const monthsFromArrivalToExpiry = differenceInMonths(expireDate, arrivalDate);
+      return monthsFromArrivalToExpiry < 6;
+    } catch {
+      // Show warning if there's an error parsing dates
+      return true;
+    }
+  }, [formData.expire_date, bookingData?.immigration, bookingData?.emigration]);
+
+  // Save formData to bookingData as user types (like step1)
+  useEffect(() => {
+    setBookingData(prev => ({
+      ...prev,
+      passport: {
+        first_name: formData.first_name,
+        last_name: formData.last_name,
+        birthday: formData.birthday,
+        expire_date: formData.expire_date,
+        gender: formData.gender,
+        phone_num: formData.phone_num,
+        nationality: formData.nationality,
+        email: formData.email,
+        email_cc: formData.email_cc,
+        passport_num: formData.passport_num,
+        company_name: formData.company_name,
+        referer_name: formData.referer_name,
+      },
+      contact: formData.contact,
+      survey_channel: formData.survey_channel,
+      add_ons: formData.add_ons,
+      // Booking fields
+      first_name: formData.first_name,
+      last_name: formData.last_name,
+      phone_num: formData.phone_num,
+      email: formData.email,
+      email_cc: formData.email_cc,
+      company_name: formData.company_name,
+      referer_name: formData.referer_name,
+    }));
+  }, [formData, setBookingData]);
+
 
   // Survey channel options matching the image
   const surveyChannels = [
@@ -150,35 +219,7 @@ const BookingStep2 = ({ bookingData, setBookingData, onNextStep, onPrevStep }) =
     }
 
     setShowError(false);
-    const updatedData = {
-      ...bookingData,
-      passport: {
-        first_name: formData.first_name,
-        last_name: formData.last_name,
-        birthday: formData.birthday,
-        expire_date: formData.expire_date,
-        gender: formData.gender,
-        phone_num: formData.phone_num,
-        email: formData.email,
-        email_cc: formData.email_cc,
-        passport_num: formData.passport_num,
-        company_name: formData.company_name,
-        referer_name: formData.referer_name,
-      },
-      contact: formData.contact,
-      survey_channel: formData.survey_channel,
-      add_ons: formData.add_ons,
-      // Booking fields
-      first_name: formData.first_name,
-      last_name: formData.last_name,
-      phone_num: formData.phone_num,
-      email: formData.email,
-      email_cc: formData.email_cc,
-      company_name: formData.company_name,
-      referer_name: formData.referer_name,
-    };
-
-    setBookingData(updatedData);
+    // Data is already saved via useEffect, just navigate to next step
     if (onNextStep) {
       onNextStep();
     }
@@ -242,8 +283,7 @@ const BookingStep2 = ({ bookingData, setBookingData, onNextStep, onPrevStep }) =
                   </FieldRequired>
                 </div>
 
-                {/* Sex, Date of Birth, and Phone Number - grouped */}
-                <div className="col-span-2 grid grid-cols-2 gap-6">
+                <div className="col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
                   {/* Sex and Date of Birth - grouped in one column */}
                   <div className="grid grid-cols-2 gap-6">
                     {/* Sex */}
@@ -295,23 +335,49 @@ const BookingStep2 = ({ bookingData, setBookingData, onNextStep, onPrevStep }) =
                       </FieldRequired>
                     </div>
                   </div>
-                  {/* Phone Number */}
-                  <div className="text-start">
-                    <FieldRequired
-                      label="国コード 付電話番号（例：+81-050-6862-0772）"
-                      required={true}
-                      error={errors.phone_num}
-                      isEmpty={isInputEmpty(formData.phone_num)}
-                    >
-                      <input
-                        type="tel"
-                        name="phone_num"
-                        value={formData.phone_num}
-                        onChange={handleInputChange}
-                        placeholder=""
-                        className={`w-full px-4 py-3 bg-[#a3e7a3] border border-[#f2f2f2] rounded-lg focus:outline-none text-base ${errors.phone_num ? 'border-[#c02b0b]' : 'border-[#b98d5d]'}`}
-                      />
-                    </FieldRequired>
+                  {/* Phone Number and Nationality - side by side */}
+                  <div className="grid grid-cols-2 gap-6">
+                    {/* Phone Number */}
+                    <div className="text-start">
+                      <FieldRequired
+                        label="国コード 付電話番号"
+                        required={true}
+                        error={errors.phone_num}
+                        isEmpty={isInputEmpty(formData.phone_num)}
+                      >
+                        <input
+                          type="tel"
+                          name="phone_num"
+                          value={formData.phone_num}
+                          onChange={handleInputChange}
+                          placeholder=""
+                          className={`w-full px-4 py-3 bg-[#a3e7a3] border border-[#f2f2f2] rounded-lg focus:outline-none text-base ${errors.phone_num ? 'border-[#c02b0b]' : 'border-[#b98d5d]'}`}
+                        />
+                      </FieldRequired>
+                    </div>
+                    {/* Nationality */}
+                    <div className="text-start relative">
+                      <FieldRequired
+                        label="国籍"
+                        required={false}
+                      >
+                        <select
+                          name="nationality"
+                          value={formData.nationality}
+                          onChange={handleInputChange}
+                          className="w-full px-4 py-3 bg-[#a3e7a3] border border-[#f2f2f2] rounded-lg focus:outline-none text-base appearance-none pr-10"
+                        >
+                          <option value="japan">日本</option> {/* Japan */}
+                          <option value="vietnam">ベトナム</option> {/* Vietnam */}
+                          <option value="others">その他</option> {/* Other */}
+                        </select>
+                        <div className="absolute right-3 bottom-1.5 transform -translate-y-1/2 pointer-events-none">
+                          <svg className="w-5 h-5 text-[#bbbbbb]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
+                          </svg>
+                        </div>
+                      </FieldRequired>
+                    </div>
                   </div>
                 </div>
 
@@ -349,7 +415,7 @@ const BookingStep2 = ({ bookingData, setBookingData, onNextStep, onPrevStep }) =
                   </FieldRequired>
                 </div>
 
-                {/* Passport Number */}
+                {/* Passport Number - 50% */}
                 <div className="text-start">
                   <FieldRequired
                     label="パスポート No."
@@ -367,7 +433,7 @@ const BookingStep2 = ({ bookingData, setBookingData, onNextStep, onPrevStep }) =
                   </FieldRequired>
                 </div>
 
-                {/* Passport Expiration Date */}
+                {/* Passport Expiration Date + Warning - 50% */}
                 <div className="text-start">
                   <FieldRequired
                     label="パスポートの有効期限満了日"
@@ -375,22 +441,38 @@ const BookingStep2 = ({ bookingData, setBookingData, onNextStep, onPrevStep }) =
                     error={errors.expire_date}
                     isEmpty={!formData.expire_date}
                   >
-                    <JapaneseDatePicker
-                      name="expire_date"
-                      value={formData.expire_date}
-                      onChange={handleInputChange}
-                      placeholder="年/月/日"
-                      minDate={new Date()}
-                      className={`w-full px-4 py-3 bg-[#a3e7a3] border border-[#f2f2f2] rounded-lg focus:outline-none text-base ${errors.expire_date ? 'border-[#c02b0b]' : 'border-[#b98d5d]'}`}
-                      error={errors.expire_date}
-                    />
+                    <div className="flex gap-2 items-start">
+                      <div className="w-[40%] flex-shrink-0">
+                        <JapaneseDatePicker
+                          name="expire_date"
+                          value={formData.expire_date}
+                          onChange={handleInputChange}
+                          placeholder="年/月/日"
+                          minDate={new Date()}
+                          className={`w-full px-4 py-3 bg-[#a3e7a3] border border-[#f2f2f2] rounded-lg focus:outline-none text-base ${errors.expire_date ? 'border-[#c02b0b]' : 'border-[#b98d5d]'}`}
+                          error={errors.expire_date}
+                        />
+                      </div>
+                      {showPassportWarning && (
+                        <div className="flex-1 min-w-0 ml-14 font-bold">
+                          <div className="text-red-600 font-bold text-base">
+                            ★ 要注意★
+                          </div>
+                          <div className="text-red-600 text-sm leading-relaxed">
+                            お客様のパスポートの有効期限が<br />
+                            6か月未満のため、<br />
+                            ビザ免除での入国はできません。
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   </FieldRequired>
                 </div>
 
                 {/* Company Name */}
                 <div className="text-start">
                   <FieldRequired
-                    label="任意情報：会社宛に領収書の発行が希望される場合、会社名を教えてください。"
+                    label="会社宛に領収書の発行が要る場合、会社名のご記入ください。"
                     required={false}
                   >
                     <input
@@ -423,25 +505,26 @@ const BookingStep2 = ({ bookingData, setBookingData, onNextStep, onPrevStep }) =
               </div>
             </div>
 
-            {/* LINE Contact Section */}
-            <div className="mb-4 mx-24 pt-4 border-gray-200">
-              <div className="flex flex-col md:flex-row gap-6">
+            {/* LINE Contact Section 50% separated from the other sections*/}
+            <div className="mb-4 mx-24 pt-4">
+              <div className="grid grid-cols-2 gap-6">
                 {/* QR Code Section */}
                 <div className="flex-shrink-0">
-                  <div className="w-70 h-70 bg-gray-200 border-gray-300 rounded-lg flex items-center justify-center">
+                  <div className="w-80 h-80 flex ">
                     <img src="/uploads/Line-QR.png" alt="" />
                   </div>
                 </div>
 
                 {/* Contact Options */}
-                <div className="flex-1">
+                <div className="flex-1 ">
                   <FieldRequired
                     label="お客様に最適なサポートを提供するために、弊社のLINE公式アカウントと友だち追加をお願いいたします。"
                     required={true}
                     error={errors.contact}
                     isEmpty={!formData.contact}
                   >
-                    <fieldset className="mt-3 space-y-2 grid grid-cols-2 gap-2 border-none p-0 m-0">
+                    {/* make this wider for 1 line text*/}
+                    <fieldset className="mt-3 space-y-2 grid grid-cols-2 gap-2 border-none p-0 m-0 ">
                       {contactOptions.map(option => (
                         <label key={option.value} className="flex items-center cursor-pointer">
                           <input
@@ -472,7 +555,7 @@ const BookingStep2 = ({ bookingData, setBookingData, onNextStep, onPrevStep }) =
                 error={errors.survey_channel}
                 isEmpty={!formData.survey_channel}
               >
-                <fieldset className="mt-3 space-y-2 grid grid-cols-2 gap-2 border-none p-0 m-0">
+                <fieldset className="mt-3 grid grid-cols-2 gap-2 border-none p-0 m-0">
                   {surveyChannels.map(channel => (
                     <label key={channel.value} className="flex items-center cursor-pointer">
                       <input
@@ -497,31 +580,31 @@ const BookingStep2 = ({ bookingData, setBookingData, onNextStep, onPrevStep }) =
               </label>
               <div className="grid grid-cols-2 gap-3">
                 {/* Left Column: value0, value1, value2, value3, value4 */}
-                <div className="space-y-3">
+                <div className="space-y-2">
                   {addOnsOptions.filter(addOn => addOn.value <= 4).map(addOn => (
-                    <div key={addOn.value} className="flex items-center">
+                    <label key={addOn.value} className="flex items-center cursor-pointer">
                       <input
                         type="checkbox"
                         checked={formData.add_ons?.includes(addOn.value) || false}
                         onChange={(e) => handleAddOnChange(addOn.value, e.target.checked)}
                         className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:outline-none"
                       />
-                      <label className="ml-3 text-base text-black cursor-pointer">{addOn.label}</label>
-                    </div>
+                      <span className="ml-3 text-base text-black">{addOn.label}</span>
+                    </label>
                   ))}
                 </div>
                 {/* Right Column: value5, value6, value7, value8, value9 */}
-                <div className="space-y-3">
+                <div className="space-y-2">
                   {addOnsOptions.filter(addOn => addOn.value >= 5).map(addOn => (
-                    <div key={addOn.value} className="flex items-center">
+                    <label key={addOn.value} className="flex items-center cursor-pointer">
                       <input
                         type="checkbox"
                         checked={formData.add_ons?.includes(addOn.value) || false}
                         onChange={(e) => handleAddOnChange(addOn.value, e.target.checked)}
                         className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:outline-none"
                       />
-                      <label className="ml-3 text-base text-black cursor-pointer">{addOn.label}</label>
-                    </div>
+                      <span className="ml-3 text-base text-black">{addOn.label}</span>
+                    </label>
                   ))}
                 </div>
               </div>
@@ -529,6 +612,7 @@ const BookingStep2 = ({ bookingData, setBookingData, onNextStep, onPrevStep }) =
                 弊社のスタッフが日本語で無料相談を行い、場合によっては提携サービスの割引券をプレゼントすることもありますので、 ぜひご協力をよろしくお願いいたします。
               </p>
             </div>
+
           </div>
 
           {/* Navigation Buttons */}

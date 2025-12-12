@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { format, parse, startOfMonth, endOfMonth, startOfWeek, addDays, addMonths, subMonths, isSameDay, getMonth, getYear, isBefore, isAfter, startOfDay } from 'date-fns';
+import { format, parse, startOfMonth, endOfMonth, startOfWeek, endOfWeek, addDays, addMonths, subMonths, isSameDay, getMonth, getYear, isBefore, isAfter, startOfDay } from 'date-fns';
 import { ja } from 'date-fns/locale';
 
 const JapaneseDatePicker = ({
@@ -13,6 +13,7 @@ const JapaneseDatePicker = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [currentMonth, setCurrentMonth] = useState(new Date());
+  const [openUpwards, setOpenUpwards] = useState(false);
   const calendarRef = useRef(null);
   const inputRef = useRef(null);
 
@@ -28,6 +29,9 @@ const JapaneseDatePicker = ({
 
   const initialDate = getDateFromValue(value);
   const [selectedDate, setSelectedDate] = useState(initialDate);
+  const [inputValue, setInputValue] = useState(
+    initialDate ? format(initialDate, 'yyyy/MM/dd') : ''
+  );
 
   // Sync with external value changes
   useEffect(() => {
@@ -37,9 +41,11 @@ const JapaneseDatePicker = ({
       if (shouldUpdate) {
         setSelectedDate(date);
         setCurrentMonth(date);
+        setInputValue(format(date, 'yyyy/MM/dd'));
       }
     } else if (selectedDate) {
       setSelectedDate(null);
+      setInputValue('');
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value]);
@@ -78,10 +84,37 @@ const JapaneseDatePicker = ({
     }
   }, [isOpen]);
 
+  const openCalendarWithDirection = () => {
+    // Navigate to the selected date's month when opening, if a date is selected
+    if (selectedDate) {
+      setCurrentMonth(selectedDate);
+    }
+
+    if (!inputRef.current) {
+      setIsOpen(true);
+      return;
+    }
+
+    const rect = inputRef.current.getBoundingClientRect();
+    const viewportHeight = window.innerHeight || document.documentElement.clientHeight || 0;
+    const spaceBelow = viewportHeight - rect.bottom;
+    const spaceAbove = rect.top;
+
+    // Approximate calendar height; if not enough space below and more space above, open upwards
+    const estimatedCalendarHeight = 360;
+    const shouldOpenUpwards = spaceBelow < estimatedCalendarHeight && spaceAbove > spaceBelow;
+
+    setOpenUpwards(shouldOpenUpwards);
+    setIsOpen(true);
+  };
+
   const handleDateChange = (date) => {
     setSelectedDate(date);
     setIsOpen(false);
     if (date) {
+      // Update visible value in YYYY/MM/DD format
+      setInputValue(format(date, 'yyyy/MM/dd'));
+
       const formattedDate = format(date, 'yyyy-MM-dd');
       onChange({
         target: {
@@ -90,6 +123,7 @@ const JapaneseDatePicker = ({
         }
       });
     } else {
+      setInputValue('');
       onChange({
         target: {
           name: name,
@@ -97,6 +131,70 @@ const JapaneseDatePicker = ({
         }
       });
     }
+  };
+
+  // Allow typing / deleting the date directly in the input (YYYY/MM/DD)
+  const handleInputChange = (e) => {
+    const newValue = e.target.value;
+    setInputValue(newValue);
+
+    // If cleared, reset selection and notify parent
+    if (newValue.trim() === '') {
+      setSelectedDate(null);
+      onChange({
+        target: {
+          name: name,
+          value: ''
+        }
+      });
+      return;
+    }
+
+    // Only react once the user has typed at least a full date
+    if (newValue.length < 10) {
+      return;
+    }
+
+    let parsed = null;
+
+    // Try to parse when format is correct
+    if (/^\d{4}\/\d{2}\/\d{2}$/.test(newValue)) {
+      const candidate = parse(newValue, 'yyyy/MM/dd', new Date());
+      if (!isNaN(candidate.getTime())) {
+        parsed = candidate;
+      }
+    }
+
+    // If format is wrong or parsing failed, fall back to today
+    if (!parsed) {
+      parsed = new Date();
+    }
+
+    // Enforce minDate / maxDate on typed value; if out of range, fall back to today
+    const today = startOfDay(new Date());
+    let finalDate = parsed;
+    const finalStart = startOfDay(finalDate);
+
+    const belowMin = minDate && isBefore(finalStart, startOfDay(minDate));
+    const aboveMax = maxDate && isAfter(finalStart, startOfDay(maxDate));
+
+    if (belowMin || aboveMax) {
+      finalDate = today;
+    }
+
+    setSelectedDate(finalDate);
+    setCurrentMonth(finalDate);
+
+    const safeDisplay = format(finalDate, 'yyyy/MM/dd');
+    const backendFormatted = format(finalDate, 'yyyy-MM-dd');
+
+    setInputValue(safeDisplay);
+    onChange({
+      target: {
+        name: name,
+        value: backendFormatted
+      }
+    });
   };
 
   const handlePrevMonth = () => {
@@ -162,13 +260,13 @@ const JapaneseDatePicker = ({
     const monthStart = startOfMonth(currentMonth);
     const monthEnd = endOfMonth(currentMonth);
     const startDate = startOfWeek(monthStart, { weekStartsOn: 1 }); // Monday
+    const endDate = endOfWeek(monthEnd, { weekStartsOn: 1 }); // Minimum weeks needed (5 or 6)
 
     const days = [];
     let day = startDate;
 
-    // Always show 6 rows (42 days = 6 weeks)
-    const totalDays = 42;
-    for (let i = 0; i < totalDays; i++) {
+    // Build days from startDate to endDate (gives 5 or 6 rows depending on month layout)
+    while (day <= endDate) {
       days.push(day);
       day = addDays(day, 1);
     }
@@ -217,46 +315,33 @@ const JapaneseDatePicker = ({
     };
 
     return (
-      <div className="absolute bottom-10 left-0 bg-white border border-gray-200  shadow-lg z-50 w-100" ref={calendarRef}>
+      <div
+        className={`absolute left-0 bg-white border border-gray-200 shadow-lg z-50 w-100 ${openUpwards ? 'bottom-full mb-2' : 'top-full mt-2'
+          }`}
+        ref={calendarRef}
+      >
         {/* Header */}
         <div className="flex items-center justify-between p-3 border-b border-gray-200">
           <button
             onClick={handlePrevMonth}
             disabled={!canGoPrev()}
-            className={`text-lg font-semibold h-8 w-8 flex items-center justify-center ${canGoPrev()
-              ? 'text-gray-600 hover:text-gray-900'
-              : 'text-gray-300 cursor-not-allowed'
+            className={`h-7 w-7 flex items-center justify-center text-xs font-bold ${canGoPrev()
+              ? 'border-gray-300 text-gray-600 hover:bg-gray-100 rounded-full'
+              : 'border-gray-200 text-gray-300 cursor-not-allowed rounded-full'
               }`}
             type="button"
           >
-            &lt;
+            <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M15 19l-7-7 7-7" />
+            </svg>
           </button>
 
-          <div className="flex items-center gap-2">
-            <div className="relative">
-              <select
-                value={currentMonthIndex}
-                onChange={handleMonthChange}
-                className="appearance-none bg-transparent border-none text-gray-900 font-medium pr-6 cursor-pointer focus:outline-none"
-              >
-                {availableMonths.map((month) => (
-                  <option key={month} value={month}>
-                    {format(new Date(2024, month, 1), 'M月', { locale: ja })}
-                  </option>
-                ))}
-              </select>
-              <div className="absolute right-0 top-1/2 -translate-y-1/2 pointer-events-none">
-                <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
-              </div>
-            </div>
-
+          <div className="flex items-center gap-4">
             <div className="relative">
               <select
                 value={currentYear}
                 onChange={handleYearChange}
-                className="appearance-none bg-transparent border-none text-gray-900 font-medium pr-6 cursor-pointer focus:outline-none"
+                className="appearance-none bg-transparent border-none text-gray-500 font-medium pr-6 cursor-pointer focus:outline-none"
               >
                 {availableYears.map((year) => (
                   <option key={year} value={year}>
@@ -270,18 +355,41 @@ const JapaneseDatePicker = ({
                 </svg>
               </div>
             </div>
+
+
+            <div className="relative">
+              <select
+                value={currentMonthIndex}
+                onChange={handleMonthChange}
+                className="appearance-none bg-transparent border-none text-gray-500 font-medium pr-6 cursor-pointer focus:outline-none"
+              >
+                {availableMonths.map((month) => (
+                  <option key={month} value={month}>
+                    {format(new Date(2024, month, 1), 'M月', { locale: ja })}
+                  </option>
+                ))}
+              </select>
+              <div className="absolute right-0 top-1/2 -translate-y-1/2 pointer-events-none">
+                <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </div>
+            </div>
           </div>
+
 
           <button
             onClick={handleNextMonth}
             disabled={!canGoNext()}
-            className={`text-lg font-semibold h-8 w-8 flex items-center justify-center ${canGoNext()
-              ? 'text-gray-600 hover:text-gray-900'
-              : 'text-gray-300 cursor-not-allowed'
+            className={`h-7 w-7 flex items-center justify-center text-xs font-bold ${canGoNext()
+              ? 'border-gray-300 text-gray-600 hover:bg-gray-100 rounded-full'
+              : 'border-gray-200 text-gray-300 cursor-not-allowed rounded-full'
               }`}
             type="button"
           >
-            &gt;
+            <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M9 5l7 7-7 7" />
+            </svg>
           </button>
         </div>
 
@@ -304,16 +412,17 @@ const JapaneseDatePicker = ({
             const isPreviousMonth = isBefore(day, monthStart);
             const isNextMonth = isAfter(day, monthEnd);
 
-            // Check if date should be hidden based on minDate/maxDate
+            // Normalize dates for comparison with min/max
             const dayStart = startOfDay(day);
             const minDateStart = minDate ? startOfDay(minDate) : null;
             const maxDateStart = maxDate ? startOfDay(maxDate) : null;
-            const isOutsideRange = (minDateStart && isBefore(dayStart, minDateStart)) || (maxDateStart && isAfter(dayStart, maxDateStart));
 
-            // Hide dates outside allowed range
-            if (isOutsideRange) {
-              return <div key={index} className="aspect-square"></div>;
-            }
+            // Dates outside allowed range are shown but not selectable
+            const isOutsideRange =
+              (minDateStart && isBefore(dayStart, minDateStart)) ||
+              (maxDateStart && isAfter(dayStart, maxDateStart));
+
+            const isDisabled = isOutsideRange;
 
             let className = 'aspect-square flex items-center justify-center text-sm rounded-full mx-1';
 
@@ -328,11 +437,20 @@ const JapaneseDatePicker = ({
               className += ' text-gray-900 border-2 border-transparent hover:border-black hover:border-[1.5px] transition-all duration-200';
             }
 
+            if (isDisabled) {
+              className += ' opacity-40 cursor-not-allowed hover:border-transparent';
+            }
+
             return (
               <button
                 key={index}
-                onClick={() => handleDateChange(day)}
+                onClick={() => {
+                  if (!isDisabled) {
+                    handleDateChange(day);
+                  }
+                }}
                 type="button"
+                disabled={isDisabled}
                 className={className}
               >
                 {format(day, 'd')}
@@ -344,19 +462,15 @@ const JapaneseDatePicker = ({
     );
   };
 
-  let displayValue = '';
-  if (selectedDate) {
-    displayValue = format(selectedDate, 'yyyy/MM/dd');
-  }
-
   return (
     <div className="relative">
       <input
         ref={inputRef}
         type="text"
-        value={displayValue}
-        onClick={() => setIsOpen(!isOpen)}
-        readOnly
+        value={inputValue}
+        onClick={openCalendarWithDirection}
+        onFocus={openCalendarWithDirection}
+        onChange={handleInputChange}
         className={className}
         placeholder={placeholder}
       />
