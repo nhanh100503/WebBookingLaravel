@@ -38,11 +38,11 @@ function App() {
   return (
     <Router>
       <LineInquiry />
-      <div className="w-[90vw] mx-20 ">
-        <div className="flex flex-wrap justify-center w-[vw] mx-auto mb-8 overflow-hidden">
+      <div className="w-[90vw] mx-20 max-[1150px]:w-[100vw] max-[1150px]:mx-0">
+        <div className="flex flex-wrap justify-center w-[90vw] mx-auto mb-8 overflow-hidden max-[1150px]:w-[96vw]">
           <img src="/uploads/vjp-flight-booking-banner.jpg" alt="" />
         </div>
-        <div className="text-blue-800 flex flex-start w-[90vw] mx-auto mb-8 font-bold hover:underline">
+        <div className="text-blue-800 flex flex-start w-[90vw] mx-auto mb-8 font-bold hover:underline max-[1150px]:w-[96vw]">
           <a href="https://vietjapan.vip/book-domestic/" target="_blank" rel="noopener noreferrer">
             ベトナム国内線ファストトラックの予約はこちら＞＞
           </a>

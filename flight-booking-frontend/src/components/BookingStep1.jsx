@@ -285,7 +285,6 @@ const BookingStep1 = ({ bookingData, setBookingData, onNextStep }) => {
   return (
 
     <div className="min-h-screen bg-white">
-
       <div className="w-full custom:max-w-[1140px] px-4 py-8 pb-32 text-left border border-gray-200 rounded-lg">
         <ProcessIndicator currentStep={1} />
         <div className="border-b-1 border-[#CBCBCB] my-4" />
@@ -329,7 +328,7 @@ const BookingStep1 = ({ bookingData, setBookingData, onNextStep }) => {
             <div className="mb-6 w-full">
               <hr className="border-b-4 border-[#CBCBCB] my-8" />
               {/* Immigration Package and Complete within 15 minutes group using cols-2*/}
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 max-[640px]:grid-cols-1 gap-4">
                 <div className="mb-6">
                   <FieldRequired label="入国ファストトラックパッケージ" required={true} error={errors.immigration_package} isEmpty={!formData.immigration_package}>
                     <fieldset className="space-y-2 w-[98%] border-none p-0 m-0">
@@ -400,7 +399,7 @@ const BookingStep1 = ({ bookingData, setBookingData, onNextStep }) => {
                           />
                           <span className={`ml-3 text-base ${errors.complete_within_15min && formData.complete_within_15min === undefined ? 'text-[#c02b0b]' : 'text-black'}`}>利用する (15$)</span>
                         </label>
-                        <p className="text-xs text-[#1362cb] mt-2 ml-7 text-left">
+                        <p className="text-base text-[#1362cb] mt-2 ml-7 text-left">
                           ※「外交官専用レーン」をご利用することで最短に入国手続きが終わります。15分以上かかる場合、15$が返金されます。お預かり荷物のない方にはおすすめです。
                         </p>
                       </fieldset>
@@ -409,7 +408,7 @@ const BookingStep1 = ({ bookingData, setBookingData, onNextStep }) => {
                 )}
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div>
                   <FieldRequired
                     label="Fフライトの予約番号や予約コード"
@@ -510,7 +509,7 @@ const BookingStep1 = ({ bookingData, setBookingData, onNextStep }) => {
 
               {/* Additional options shown only when "Other options" is enabled */}
               {formData.useOtherOptions && (
-                <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6 p-4">
+                <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 max-[640px]:grid-cols-1 gap-6 max-[640px]:gap-4 p-4 max-[640px]:p-2">
                   {/* Column 1: Pickup at airplane exit */}
                   <div>
                     <FieldRequired
@@ -572,7 +571,7 @@ const BookingStep1 = ({ bookingData, setBookingData, onNextStep }) => {
                       error={errors.pickup_vehicle_using}
                       isEmpty={!formData.pickup_vehicle_using}
                     >
-                      <fieldset className="space-y-2 grid grid-cols-2 gap-4 border-none p-0 m-0">
+                      <fieldset className="space-y-2 grid grid-cols-2 max-[640px]:grid-cols-1 gap-4 max-[640px]:gap-3 border-none p-0 m-0">
                         {pickupVehicles.map(vehicle => (
                           <label key={vehicle.value} className="flex items-center cursor-pointer">
                             <input
@@ -595,7 +594,7 @@ const BookingStep1 = ({ bookingData, setBookingData, onNextStep }) => {
                 </div>
               )}
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mt-6">
                 <div>
                   <label className="block text-base font-medium text-black mb-2 text-left">
                     お迎えのベトナム語を話せる方の電話番号（任意）
@@ -680,7 +679,10 @@ const BookingStep1 = ({ bookingData, setBookingData, onNextStep }) => {
                   入国と同じ
                 </label>
               </fieldset>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div>
                   <FieldRequired
                     label="フライトの予約番号や予約コード"
@@ -737,9 +739,49 @@ const BookingStep1 = ({ bookingData, setBookingData, onNextStep }) => {
                         </label>
                       ))}
                     </fieldset>
+                    
                   </FieldRequired>
                 </div>
 
+                <div>
+                  <label className="block text-base font-medium text-black mb-2 text-left">
+                    運行航空の会員番号やマイレージ番号（あれば）
+                  </label>
+                  <input
+                    type="text"
+                    name="airline_membership_num"
+                    value={formData.airline_membership_num}
+                    onChange={handleInputChange}
+                    className="text-center w-full px-4 py-3 bg-[#a3e7a3] border border-[#f2f2f2] rounded-lg focus:outline-none text-base"
+                  />
+                </div>
+
+                
+              </div>
+
+              {/* Seating Preferences - Placed after 出発日 and before 運行航空の会員番号やマイレージ番号 */}
+              <div className="my-8">
+                <label className="block text-base font-medium text-black mb-3 text-left">
+                  席のご希望（出来るだけアレンジしますが、ご希望を応えない場合もあります）
+                </label>
+                <fieldset className="grid grid-cols-1 gap-2 sm:grid-cols-4 max-[640px]:grid-cols-1 border-none p-0 m-0"> {/* 4 columns on desktop, when width = 640 or lower, it will be 1 column*/}
+                  {seatingPreferences.map(seat => (
+                    <label key={seat.value} className="flex items-center cursor-pointer">
+                      <input
+                        type="radio"
+                        name="seating_pref"
+                        value={seat.value}
+                        checked={formData.seating_pref === seat.value}
+                        onChange={handleInputChange}
+                        className="w-4 h-4 text-blue-600 border-gray-300 focus:outline-none cursor-pointer"
+                      />
+                      <span className="ml-3 text-base text-black text-left">{seat.label}</span>
+                    </label>
+                  ))}
+                </fieldset>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div>
                   <FieldRequired
                     label="出発日"
@@ -763,19 +805,6 @@ const BookingStep1 = ({ bookingData, setBookingData, onNextStep }) => {
 
                 <div>
                   <label className="block text-base font-medium text-black mb-2 text-left">
-                    運行航空の会員番号やマイレージ番号（あれば）
-                  </label>
-                  <input
-                    type="text"
-                    name="airline_membership_num"
-                    value={formData.airline_membership_num}
-                    onChange={handleInputChange}
-                    className="text-center w-full px-4 py-3 bg-[#a3e7a3] border border-[#f2f2f2] rounded-lg focus:outline-none text-base"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-base font-medium text-black mb-2 text-left">
                     出発空港での待ち合わせご希望時間（出発の３時間前からご指定可）
                   </label>
                   <div className="flex items-center gap-2">
@@ -785,6 +814,7 @@ const BookingStep1 = ({ bookingData, setBookingData, onNextStep }) => {
                       name="meeting_time_hours"
                       min="0"
                       max="23"
+                      placeholder="時"
                       value={formData.meeting_time ? parseInt(formData.meeting_time.split(':')[0] || '0') : ''}
                       onChange={(e) => {
                         const hours = e.target.value;
@@ -795,7 +825,7 @@ const BookingStep1 = ({ bookingData, setBookingData, onNextStep }) => {
                           meeting_time: timeValue,
                         }));
                       }}
-                      className="w-16 px-3 py-2 bg-[#a3e7a3] border border-gray-300 rounded-md text-center text-black font-medium focus:outline-none text-base"
+                      className="w-16 px-3 py-2 bg-[#a3e7a3] border border-gray-300 rounded-md text-center text-black font-medium focus:outline-none text-base placeholder-gray-400"
                     />
                     {/* Colon separator */}
                     <span className="text-black text-lg font-medium">:</span>
@@ -805,6 +835,7 @@ const BookingStep1 = ({ bookingData, setBookingData, onNextStep }) => {
                       name="meeting_time_minutes"
                       min="0"
                       max="59"
+                      placeholder='分' 
                       value={formData.meeting_time ? parseInt(formData.meeting_time.split(':')[1] || '0') : ''}
                       onChange={(e) => {
                         const minutes = e.target.value;
@@ -815,34 +846,13 @@ const BookingStep1 = ({ bookingData, setBookingData, onNextStep }) => {
                           meeting_time: timeValue,
                         }));
                       }}
-                      className="w-16 px-3 py-2 bg-[#a3e7a3] border border-gray-300 rounded-md text-center text-black font-medium focus:outline-none text-base"
+                      className="w-16 px-3 py-2 bg-[#a3e7a3] border border-gray-300 rounded-md text-center text-black font-medium focus:outline-none text-base placeholder-gray-400"
                     />
                   </div>
                 </div>
               </div>
 
-              <div className="mt-6">
-                <label className="block text-base font-medium text-black mb-3 text-left">
-                  席のご希望（出来るだけアレンジしますが、ご希望を応えない場合もあります）
-                </label>
-                <fieldset className="grid grid-cols-1 gap-2 sm:grid-cols-4 border-none p-0 m-0"> {/* 4 columns on desktop, when width = 640 or lower, it will be 1 column*/}
-                  {seatingPreferences.map(seat => (
-                    <label key={seat.value} className="flex items-center cursor-pointer">
-                      <input
-                        type="radio"
-                        name="seating_pref"
-                        value={seat.value}
-                        checked={formData.seating_pref === seat.value}
-                        onChange={handleInputChange}
-                        className="w-4 h-4 text-blue-600 border-gray-300 focus:outline-none cursor-pointer"
-                      />
-                      <span className="ml-3 text-base text-black text-left">{seat.label}</span>
-                    </label>
-                  ))}
-                </fieldset>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mt-6">
                 <div>
                   <label className="block text-base font-medium text-black mb-2 text-left">
                     お見送りのベトナム語を話せる方の電話番号（任意）
@@ -876,28 +886,28 @@ const BookingStep1 = ({ bookingData, setBookingData, onNextStep }) => {
       </div>
 
       {/* PriceBar - Always visible at bottom */}
-          <PriceBar
-            bookingData={{
+      <PriceBar
+        bookingData={{
           ...bookingData,
-              immigration: formData.useImmigration ? {
+          immigration: formData.useImmigration ? {
             immigration_package: formData.immigration_package || '35$',
-                pickup_at_airplain_exit: formData.useOtherOptions ? formData.pickup_at_airplain_exit : false,
+            pickup_at_airplain_exit: formData.useOtherOptions ? formData.pickup_at_airplain_exit : false,
             complete_within_15min: (formData.immigration_package || '35$') !== '300$' ? formData.complete_within_15min : false,
-                pickup_vehicle_using: formData.useOtherOptions ? formData.pickup_vehicle_using : 'no',
-              } : null,
-              emigration: formData.useEmigration ? {
+            pickup_vehicle_using: formData.useOtherOptions ? formData.pickup_vehicle_using : 'no',
+          } : null,
+          emigration: formData.useEmigration ? {
             emigration_package: formData.emigration_package || '50$',
-              } : null,
-            }}
-            onCouponApply={handlePriceUpdate}
-            onPrimaryAction={handleNext}
-            primaryActionLabel="利用者情報のご記入"
-            primaryActionDisabled={
-              (!formData.useImmigration && !formData.useEmigration) ||
-              (formData.useImmigration && !formData.immigration_package) ||
-              (formData.useEmigration && !formData.emigration_package)
-            }
-          />
+          } : null,
+        }}
+        onCouponApply={handlePriceUpdate}
+        onPrimaryAction={handleNext}
+        primaryActionLabel="利用者情報のご記入"
+        primaryActionDisabled={
+          (!formData.useImmigration && !formData.useEmigration) ||
+          (formData.useImmigration && !formData.immigration_package) ||
+          (formData.useEmigration && !formData.emigration_package)
+        }
+      />
     </div>
   );
 };
