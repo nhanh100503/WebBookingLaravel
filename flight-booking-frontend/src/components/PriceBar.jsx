@@ -250,7 +250,7 @@ const PriceBar = ({
   };
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-[#f0f8ff] border-t-1 border-black-200 shadow-lg z-40 px-8 py-4">
+    <div className="fixed bottom-0 left-0 right-0 bg-[#f0f8ff] border-t-1 border-black-200 shadow-lg z-40 px-8">
       <div className="max-w-[1140px] mx-auto px- py-2 h-38 max-[769px]:h-28 max-[769px]:px-0">
         <div className="flex flex-col">
           <div className="flex flex-wrap justify-between items-start max-[1367px]:hidden max-[1367px]:justify-around">

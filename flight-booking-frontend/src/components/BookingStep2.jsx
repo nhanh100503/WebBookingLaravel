@@ -165,6 +165,14 @@ const BookingStep2 = ({ bookingData, setBookingData, onNextStep, onPrevStep }) =
 
   const isInputEmpty = (value) => !value || value.trim() === '';
 
+  // Email validation function - requires valid format (name@domain.tld)
+  const isValidEmail = (email) => {
+    if (!email || !email.trim()) return false;
+    // Regex: requires @ symbol, domain with at least 1 char TLD
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email.trim());
+  };
+
   const validateForm = () => {
     const newErrors = {};
 
@@ -183,8 +191,11 @@ const BookingStep2 = ({ bookingData, setBookingData, onNextStep, onPrevStep }) =
     if (!formData.phone_num || !formData.phone_num.trim()) {
       newErrors.phone_num = 'This field is required';
     }
+    // Email validation - required and must be valid format
     if (!formData.email || !formData.email.trim()) {
-      newErrors.email = 'This field is required';
+      newErrors.email = 'required';
+    } else if (!isValidEmail(formData.email)) {
+      newErrors.email = 'invalid_format';
     }
     if (!formData.passport_num || !formData.passport_num.trim()) {
       newErrors.passport_num = 'This field is required';
@@ -228,14 +239,14 @@ const BookingStep2 = ({ bookingData, setBookingData, onNextStep, onPrevStep }) =
 
   return (
     <div className="min-h-screen bg-white">
-      <div className="max-w-6xl mx-auto px-4 py-8 pb-32">
+      <div className="max-w-6xl mx-auto px-4 max-[640px]:px-2 py-8 max-[640px]:py-4 pb-32">
 
         {/* Error Message */}
         <Error message={showError ? "There Is A Problem With Your Answer. Please Check The Fields Below." : null} />
 
         <form onSubmit={(e) => { e.preventDefault(); handleNext(); }}>
           {/* All sections within one border */}
-          <div className="mb-6 p-6 bg-white border border-gray-200 rounded-lg shadow-sm">
+          <div className="mb-6 p-6 max-[640px]:p-3 bg-white border border-gray-200 rounded-lg shadow-sm">
             {/* Process Indicator inside the border */}
             <div className="mb-6">
               <ProcessIndicator currentStep={2} />
@@ -244,7 +255,7 @@ const BookingStep2 = ({ bookingData, setBookingData, onNextStep, onPrevStep }) =
             {/* Personal Information Section */}
             <div className="mb-6">
 
-              <div className="grid grid-cols-2 gap-6">
+              <div className="grid grid-cols-2 max-[640px]:grid-cols-1 gap-6 max-[640px]:gap-4">
 
 
                 {/* Last Name */}
@@ -283,13 +294,13 @@ const BookingStep2 = ({ bookingData, setBookingData, onNextStep, onPrevStep }) =
                   </FieldRequired>
                 </div>
 
-                <div className="col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="col-span-2 max-[640px]:col-span-1 grid grid-cols-1 md:grid-cols-2 gap-6 max-[640px]:gap-4">
                   {/* Sex and Date of Birth - grouped in one column */}
-                  <div className="grid grid-cols-2 gap-6">
+                  <div className="grid grid-cols-2 max-[640px]:grid-cols-1 gap-6 max-[640px]:gap-4">
                     {/* Sex */}
                     <div>
                       <FieldRequired label="性別" required={true} error={errors.gender} isEmpty={!formData.gender}>
-                        <fieldset className="mt-2 flex gap-6 border-none p-0 m-0">
+                        <fieldset className="mt-2 flex gap-6 max-[640px]:gap-38 border-none p-0 m-0">
                           <label className="flex items-center cursor-pointer">
                             <input
                               type="radio"
@@ -336,7 +347,7 @@ const BookingStep2 = ({ bookingData, setBookingData, onNextStep, onPrevStep }) =
                     </div>
                   </div>
                   {/* Phone Number and Nationality - side by side */}
-                  <div className="grid grid-cols-2 gap-6">
+                  <div className="grid grid-cols-2 max-[640px]:grid-cols-1 gap-6 max-[640px]:gap-4">
                     {/* Phone Number */}
                     <div className="text-start">
                       <FieldRequired
@@ -388,6 +399,7 @@ const BookingStep2 = ({ bookingData, setBookingData, onNextStep, onPrevStep }) =
                     required={true}
                     error={errors.email}
                     isEmpty={isInputEmpty(formData.email)}
+                    customErrorMessage="入力したメールアドレスが無効です。フォーマットを確認してください（例：email@domain.com）"
                   >
                     <input
                       type="email"
@@ -436,13 +448,13 @@ const BookingStep2 = ({ bookingData, setBookingData, onNextStep, onPrevStep }) =
                 {/* Passport Expiration Date + Warning - 50% */}
                 <div className="text-start">
                   <FieldRequired
-                    label="パスポートの有効期限満了日"
+                    label="パスポートの有効期限"
                     required={true}
                     error={errors.expire_date}
                     isEmpty={!formData.expire_date}
                   >
-                    <div className="flex gap-2 items-start">
-                      <div className="w-[40%] flex-shrink-0">
+                    <div className="flex gap-2 items-start max-[640px]:flex-col max-[640px]:gap-3">
+                      <div className="w-[40%] max-[640px]:w-full flex-shrink-0">
                         <JapaneseDatePicker
                           name="expire_date"
                           value={formData.expire_date}
@@ -454,7 +466,7 @@ const BookingStep2 = ({ bookingData, setBookingData, onNextStep, onPrevStep }) =
                         />
                       </div>
                       {showPassportWarning && (
-                        <div className="flex-1 min-w-0 ml-14 font-bold">
+                        <div className="flex-1 min-w-0 ml-14 max-[640px]:ml-0 font-bold">
                           <div className="text-red-600 font-bold text-base">
                             ★ 要注意★
                           </div>
@@ -506,17 +518,17 @@ const BookingStep2 = ({ bookingData, setBookingData, onNextStep, onPrevStep }) =
             </div>
 
             {/* LINE Contact Section 50% separated from the other sections*/}
-            <div className="mb-4 mx-24 pt-4">
-              <div className="grid grid-cols-2 gap-6">
+            <div className="mb-4 mx-24 max-[640px]:mx-0 pt-4">
+              <div className="grid grid-cols-2 max-[640px]:grid-cols-1 gap-6 max-[640px]:gap-4">
                 {/* QR Code Section */}
-                <div className="flex-shrink-0">
-                  <div className="w-80 h-80 flex ">
-                    <img src="/uploads/Line-QR.png" alt="" />
+                <div className="flex-shrink-0 max-[640px]:flex max-[640px]:justify-center">
+                  <div className="w-80 h-80 max-[640px]:w-48 max-[640px]:h-48 flex max-[640px]:w-65 max-[640px]:h-65">
+                    <img src="/uploads/Line-QR.png" alt="" className="max-[640px]:w-full max-[640px]:h-full object-contain " />
                   </div>
                 </div>
 
                 {/* Contact Options */}
-                <div className="flex-1 ">
+                <div className="flex-1">
                   <FieldRequired
                     label="お客様に最適なサポートを提供するために、弊社のLINE公式アカウントと友だち追加をお願いいたします。"
                     required={true}
@@ -524,7 +536,7 @@ const BookingStep2 = ({ bookingData, setBookingData, onNextStep, onPrevStep }) =
                     isEmpty={!formData.contact}
                   >
                     {/* make this wider for 1 line text*/}
-                    <fieldset className="mt-3 space-y-2 grid grid-cols-2 gap-2 border-none p-0 m-0 ">
+                    <fieldset className="mt-3 grid grid-cols-2 max-[640px]:grid-cols-1 gap-2 max-[640px]:gap-0 border-none p-0 m-0">
                       {contactOptions.map(option => (
                         <label key={option.value} className="flex items-center cursor-pointer">
                           <input
@@ -555,7 +567,7 @@ const BookingStep2 = ({ bookingData, setBookingData, onNextStep, onPrevStep }) =
                 error={errors.survey_channel}
                 isEmpty={!formData.survey_channel}
               >
-                <fieldset className="mt-3 grid grid-cols-2 gap-2 border-none p-0 m-0">
+                <fieldset className="mt-3 grid grid-cols-2 max-[640px]:grid-cols-1 border-none p-0 m-0">
                   {surveyChannels.map(channel => (
                     <label key={channel.value} className="flex items-center cursor-pointer">
                       <input
@@ -578,9 +590,9 @@ const BookingStep2 = ({ bookingData, setBookingData, onNextStep, onPrevStep }) =
               <label className="block text-base font-medium text-black mb-4">
                 以下のサービスについての無料相談をご希望しませんか。
               </label>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 max-[640px]:grid-cols-1 gap-3 max-[640px]:gap-2">
                 {/* Left Column: value0, value1, value2, value3, value4 */}
-                <div className="space-y-2">
+                <div className="space-y-1">
                   {addOnsOptions.filter(addOn => addOn.value <= 4).map(addOn => (
                     <label key={addOn.value} className="flex items-center cursor-pointer">
                       <input
@@ -594,7 +606,7 @@ const BookingStep2 = ({ bookingData, setBookingData, onNextStep, onPrevStep }) =
                   ))}
                 </div>
                 {/* Right Column: value5, value6, value7, value8, value9 */}
-                <div className="space-y-2">
+                <div className="space-y-1">
                   {addOnsOptions.filter(addOn => addOn.value >= 5).map(addOn => (
                     <label key={addOn.value} className="flex items-center cursor-pointer">
                       <input
@@ -616,18 +628,18 @@ const BookingStep2 = ({ bookingData, setBookingData, onNextStep, onPrevStep }) =
           </div>
 
           {/* Navigation Buttons */}
-          <div className="flex justify-center gap-2 mt-8">
+          <div className="flex justify-center gap-2 mt-8 max-[640px]:gap-3 max-[640px]:px-4">
             <button
               type="button"
               onClick={handleBack}
-              className="px-6 py-3 bg-white border-2 border-gray-300 text-gray-700 rounded-full hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 font-medium text-base"
+              className="px-6 py-3 bg-white border-2 border-gray-300 text-gray-700 rounded-full hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 font-medium text-base max-[640px]:w-full"
             >
               戻る
             </button>
             <button
               //hover with bg-white-500 with slow transition
               type="submit"
-              className="px-8 py-3 bg-[#01ae00] text-white rounded-full hover:bg-green-300 focus:outline-none focus:ring-2 focus:ring-green-500 font-medium transition-all duration-300 text-base"
+              className="px-8 py-3 bg-[#01ae00] text-white rounded-full hover:bg-green-300 focus:outline-none focus:ring-2 focus:ring-green-500 font-medium transition-all duration-300 text-base max-[640px]:w-full"
             >
               予約情報の確認
             </button>
