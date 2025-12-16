@@ -316,12 +316,12 @@ const JapaneseDatePicker = ({
 
     return (
       <div
-        className={`absolute left-0 bg-white border border-gray-200 shadow-lg z-50 w-100 ${openUpwards ? 'bottom-full mb-2' : 'top-full mt-2'
+        className={`absolute left-0 bg-white border border-gray-200 shadow-lg z-50 w-100 max-[640px]:scale-60 max-[640px]:w-full max-[640px]:left-1/3 max-[640px]:-translate-x-1/2  ${openUpwards ? 'bottom-full mb-2' : 'top-full mt-2'
           }`}
         ref={calendarRef}
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-3 border-b border-gray-200">
+        <div className="flex items-center justify-between p-3 border-b border-gray-200 ">
           <button
             onClick={handlePrevMonth}
             disabled={!canGoPrev()}

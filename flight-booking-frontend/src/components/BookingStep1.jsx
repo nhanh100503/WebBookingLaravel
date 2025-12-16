@@ -292,16 +292,20 @@ const BookingStep1 = ({ bookingData, setBookingData, onNextStep }) => {
         {/* Error Message */}
         <Error message={showError ? "There Is A Problem With Your Answer. Please Check The Fields Below." : null} />
         {/* Information Box */}
-        <div className="mb-6 p-4 text-left">
-          <div className="flex flex-wrap items-center text-[15px] text-gray-700">
-            <strong>⚡️アカウント登録不要・簡単に予約 |🏃‍♂️出発または到着の4時間前までに予約可 |
-              🇯🇵LINEで24時間日本語対応 | 👶0～2歳は無料 - 2～6歳は半額</strong>
-            <strong>✈️【キャンペーン実施中】10回ご利用いただくごとに、同じサービスパッケージの無料1回をプレゼント</strong>
+        <div className="mb-6 p-4 text-left flex-col justify-center">
+          <div className="flex flex-col text-[15px] text-gray-700 text-center mb-6">
+            <p>
+              ✔️アカウント登録不要　✔️パスポート写真送付不要　✔️丁寧に対応　✔️当日予約可
+            </p>
+            <p>✔️日本語24時間対応　✔️夜間・早朝の追加料無　✔️予約簡単　✔️日本語領収書発行可</p>
+            <p className="text-red-600 underline text-center">
+              <a href="https://vietnam-fasttrack.com/vjp-fasttrack-december-esim-campaign/?_gl=1*atd23l*_gcl_au*MTk5MDI3MTkzOS4xNzY0MDQ3NDEyLjE4OTg5OTIyNjAuMTc2NTgwMzE3Mi4xNzY1ODAzMTcy" target='_blank'>🎁高速データ通信 eSIM（30GB/5日・10USD相当）を今だけ無料プレゼント！詳細はこちら</a>
+            </p>
           </div>
-          <div className="mt-2 text-[15px] text-gray-700 text-right">
-            <strong>
-              <a href="https://page.line.me/vietjapan.vip" target='_blank'>📱LINEチャットで簡単予約はこちら＞＞</a>
-            </strong>
+
+          {/* line esim */}
+          <div className="flex flex-col text-[15px] font-bold text-right text-blue-700 underline">
+            <a href="https://vietjapan.vip/line-chat/" target='_blank'>📱LINE予約でeSIMプレゼント＞＞</a>
           </div>
 
         </div>
@@ -399,7 +403,7 @@ const BookingStep1 = ({ bookingData, setBookingData, onNextStep }) => {
                           />
                           <span className={`ml-3 text-base ${errors.complete_within_15min && formData.complete_within_15min === undefined ? 'text-[#c02b0b]' : 'text-black'}`}>利用する (15$)</span>
                         </label>
-                        <p className="text-base text-[#1362cb] mt-2 ml-7 text-left">
+                        <p className="text-md text-[#1362cb] mt-2 text-left">
                           ※「外交官専用レーン」をご利用することで最短に入国手続きが終わります。15分以上かかる場合、15$が返金されます。お預かり荷物のない方にはおすすめです。
                         </p>
                       </fieldset>
@@ -509,7 +513,7 @@ const BookingStep1 = ({ bookingData, setBookingData, onNextStep }) => {
 
               {/* Additional options shown only when "Other options" is enabled */}
               {formData.useOtherOptions && (
-                <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 max-[640px]:grid-cols-1 gap-6 max-[640px]:gap-4 p-4 max-[640px]:p-2">
+                <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 max-[640px]:grid-cols-1 gap-6 max-[640px]:gap-4 p-4 max-[640px]:px-8">
                   {/* Column 1: Pickup at airplane exit */}
                   <div>
                     <FieldRequired
@@ -518,7 +522,8 @@ const BookingStep1 = ({ bookingData, setBookingData, onNextStep }) => {
                       error={errors.pickup_at_airplain_exit}
                       isEmpty={formData.pickup_at_airplain_exit === false}
                     >
-                      <fieldset className="space-y-2 border-none p-0 m-0">
+                      {/* with max-w-[640px] => make pickup_at_airplain_exit into 2 cols*/}
+                      <fieldset className="space-y-2 border-none p-0 m-0 max-[640px]:grid grid-cols-2 gap-4">
                         <label className="flex items-center cursor-pointer">
                           <input
                             type="radio"
@@ -571,7 +576,7 @@ const BookingStep1 = ({ bookingData, setBookingData, onNextStep }) => {
                       error={errors.pickup_vehicle_using}
                       isEmpty={!formData.pickup_vehicle_using}
                     >
-                      <fieldset className="space-y-2 grid grid-cols-2 max-[640px]:grid-cols-1 gap-4 max-[640px]:gap-3 border-none p-0 m-0">
+                      <fieldset className="space-y-2 grid grid-cols-2 max-[640px]:grid-cols-1 gap-4 max-[640px]:gap-0 border-none p-0 m-0">
                         {pickupVehicles.map(vehicle => (
                           <label key={vehicle.value} className="flex items-center cursor-pointer">
                             <input
@@ -723,7 +728,7 @@ const BookingStep1 = ({ bookingData, setBookingData, onNextStep }) => {
 
                 <div>
                   <FieldRequired label="ご利用の対象空港" required={true} error={errors.emigration_airport} isEmpty={!formData.emigration_airport}>
-                    <fieldset className="space-y-2 border-none p-0 m-0">
+                    <fieldset className="space-y-2 max-[640px]:space-y-0 border-none p-0 m-0">
                       {airports.map(airport => (
                         <label key={airport.value} className="flex items-center cursor-pointer">
                           <input
@@ -764,7 +769,7 @@ const BookingStep1 = ({ bookingData, setBookingData, onNextStep }) => {
                 <label className="block text-base font-medium text-black mb-3 text-left">
                   席のご希望（出来るだけアレンジしますが、ご希望を応えない場合もあります）
                 </label>
-                <fieldset className="grid grid-cols-1 gap-2 sm:grid-cols-4 max-[640px]:grid-cols-1 border-none p-0 m-0"> {/* 4 columns on desktop, when width = 640 or lower, it will be 1 column*/}
+                <fieldset className="grid grid-cols-1 gap-2 sm:grid-cols-4 max-[640px]:grid-cols-1 max-[640px]:gap-0 border-none p-0 m-0 "> {/* 4 columns on desktop, when width = 640 or lower, it will be 1 column*/}
                   {seatingPreferences.map(seat => (
                     <label key={seat.value} className="flex items-center cursor-pointer">
                       <input

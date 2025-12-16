@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
 import { validateCoupon } from '../services/bookingService';
-import LineInquiry from './LineInquiry';
 
 const PriceBar = ({
   bookingData,
@@ -18,9 +17,7 @@ const PriceBar = ({
   const [vat, setVat] = useState(0);
   const [total, setTotal] = useState(0);
   const [paymentMethod, setPaymentMethod] = useState(bookingData?.payment_method || 'online_credit');
-  const [isPaymentDropdownOpen, setIsPaymentDropdownOpen] = useState(false);
   const isCalculatingRef = useRef(false);
-  const paymentDropdownRef = useRef(null);
 
   // Package prices
   const packagePrices = {
@@ -167,7 +164,7 @@ const PriceBar = ({
     const normalizedCode = rawCode.toUpperCase();
 
     if (!rawCode) {
-      setCouponError('無効なクーポン。');
+      setCouponError('無効なクーポン');
       setCouponCode(''); // Clear input
       return;
     }
@@ -216,7 +213,7 @@ const PriceBar = ({
       if (errorMessage.includes('Coupon code not found') || errorMessage.includes('not found')) {
         setCouponError('無効なクーポン。');
       } else if (errorMessage.includes('expired') || errorMessage.includes('Coupon has expired')) {
-        setCouponError('無効なクーポンです。');
+        setCouponError('無効なクーポン。');
       } else {
         setCouponError('無効なクーポン。');
       }
@@ -245,38 +242,18 @@ const PriceBar = ({
     { value: 'vietnam_bank_transfer', label: 'ベトナム口座振込' },
   ];
 
-  const selectedPaymentMethod = paymentMethods.find(pm => pm.value === paymentMethod) || paymentMethods[1];
-
-  // Close dropdown when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (paymentDropdownRef.current && !paymentDropdownRef.current.contains(event.target)) {
-        setIsPaymentDropdownOpen(false);
-      }
-    };
-
-    if (isPaymentDropdownOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [isPaymentDropdownOpen]);
-
   const handlePaymentMethodChange = (value) => {
     setPaymentMethod(value);
-    setIsPaymentDropdownOpen(false);
     if (onCouponApply) {
       onCouponApply({ payment_method: value });
     }
   };
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-[#f0f8ff] border-t-1 border-black-200 shadow-lg z-40">
-      <div className="max-w-[1140px] mx-auto px-4 py-2 h-38 max-[700px]:h-44">
+    <div className="fixed bottom-0 left-0 right-0 bg-[#f0f8ff] border-t-1 border-black-200 shadow-lg z-40 px-8 py-4">
+      <div className="max-w-[1140px] mx-auto px-10 py-2 h-38 max-[700px]:h-44">
         <div className="flex flex-col">
-          <div className="flex flex-wrap justify-between items-start">
+          <div className="flex flex-wrap justify-between items-start max-[1367px]:hidden max-[1367px]:justify-around">
             {/* 仮計算 */}
             <div className="flex flex-col items-start">
               <span className="text-base text-black font-bold">仮計算</span>
@@ -299,14 +276,14 @@ const PriceBar = ({
                     }
                   }}
                   disabled={!!appliedCoupon}
-                  className="w-24 px-3 py-2 bg-[#a3e7a3] border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-base disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-20 px-3 py-2 bg-[#a3e7a3] border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-base disabled:opacity-50 disabled:cursor-not-allowed "
                 />
 
                 {/* when bg-[#01ae00] hover:bg-gray-300*/}
                 <button
                   onClick={handleCouponApply}
                   disabled={couponCode.trim() === '' || !!appliedCoupon}
-                  className="px-3 py-2 bg-[#01ae00] text-white rounded-md hover:bg-green-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors font-medium text-base disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-gray-300"
+                  className="px-3 py-2 bg-[#01ae00] text-white rounded-full hover:bg-green-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors font-medium text-base disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-gray-300"
                 >
                   適用
                 </button>
@@ -328,7 +305,7 @@ const PriceBar = ({
 
               {/* Error message - absolutely positioned, doesn't affect layout */}
               {couponError && (
-                <div className="absolute top-[70%] px-1 bg-[#fff9f9] border border-[1px] border-[#c02b0b] w-38 text-blue-600 text-sm font-medium whitespace-pre-line z-10">
+                <div className="absolute top-[70%] max-w-[250%] px-1 bg-[#fff9f9] border border-[1px] border-[#c02b0b] text-blue-600 text-sm font-medium whitespace-nowrap text-ellipsis inline-flex z-10">
                   {couponError}
                 </div>
               )}
@@ -343,15 +320,15 @@ const PriceBar = ({
             {/* 合計 */}
             <div className="flex items-center gap-2">
               <span className="text-base text-black font-bold">合計</span>
-              <span className="bg-[#a3e7a3] rounded-md w-24 p-2 text-center ">
+              <span className="w-24 p-2 text-center font-bold">
                 ${total.toFixed(2)}
               </span>
             </div>
-            {/* Payment Method Section and Action Button in flex-row */}
+            {/* Just Payment Method Section  */}
             {primaryActionLabel && onPrimaryAction && (
-              <div className="flex flex-row items-center justify-between gap-4">
+              <div className="flex flex-row items-between gap-9  w-full">
                 {/* Payment Method Section */}
-                <div className="flex items-center gap-4 flex-1">
+                <div className="flex justify-start items-center gap-4 flex-1">
                   <label className="text-base font-bold text-black whitespace-nowrap">支払方法</label>
 
                   {/* Radio buttons for larger screens */}
@@ -406,47 +383,12 @@ const PriceBar = ({
                     </label>
                   </fieldset>
 
-                  {/* Dropdown for max-[1367px] */}
-                  <div className="hidden max-[1367px]:block relative" ref={paymentDropdownRef}>
-                    <button
-                      type="button"
-                      onClick={() => setIsPaymentDropdownOpen(!isPaymentDropdownOpen)}
-                      className="flex items-center justify-between w-full px-4 py-2 bg-[#a3e7a3] border border-gray-300 rounded-md text-base text-black font-medium hover:bg-green-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 min-w-[200px]"
-                    >
-                      <span>{selectedPaymentMethod.label}</span>
-                      <svg
-                        className={`w-5 h-5 transition-transform ${isPaymentDropdownOpen ? 'rotate-180' : ''}`}
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                      </svg>
-                    </button>
-
-                    {isPaymentDropdownOpen && (
-                      <div className="absolute top-full left-0 w-full bg-gray-100 border border-gray-400 rounded-md shadow-lg z-50 overflow-hidden">
-                        {paymentMethods.map((method) => (
-                          <button
-
-                            key={method.value}
-                            type="button"
-                            onClick={() => handlePaymentMethodChange(method.value)}
-                            className="w-full px-4 py-3 text-left text-sm text-white hover:bg-[#4a5568] transition-colors"
-
-                          >
-                            {method.label}
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                  </div>
                 </div>
 
                 <button
                   onClick={onPrimaryAction}
                   disabled={primaryActionDisabled}
-                  className="px-6 py-3 bg-[#01ae00] text-white rounded-full font-medium hover:bg-green-200 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors text-base disabled:outline-none whitespace-nowrap"
+                  className="max-[1367px]:hidden px-6 py-3 bg-[#01ae00] text-white rounded-full font-medium hover:bg-green-200 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors text-base disabled:outline-none whitespace-nowrap"
                 >
                   {primaryActionLabel}
                 </button>
@@ -456,11 +398,41 @@ const PriceBar = ({
 
 
 
-          {/* Responsive layout for max-[1367px] - Stacked vertically */}
+          {/* Responsive layout for max-[1367px] - 2 rows */}
           <div className="hidden max-[1367px]:flex max-[1367px]:flex-col max-[1367px]:gap-4 max-[1367px]:mt-4">
-            {/* Coupon Section */}
-            <div className="relative flex flex-col gap-2 min-h-[70px]">
-              <div className="flex items-center gap-2">
+            {/* Row 1 - summary + payment dropdown */}
+            <div className="flex flex-wrap items-center justify-between gap-2 max-[1367px]:justify-around">
+              <div className="flex flex-col items-start">
+                <span className="text-base text-black font-bold">仮計算</span>
+                <span className="text-base font-regular text-[#ff0000]">${subtotal.toFixed(2)}</span>
+              </div>
+              <div className="flex flex-col items-start">
+                <span className="text-base font-bold text-black">税金</span>
+                <span className="text-base font-regular text-black">${vat.toFixed(2)}</span>
+              </div>
+              <div className="flex flex-col items-start">
+                <span className="text-base font-bold text-black">合計</span>
+                <span className="w-24 text-start font-bold text-black">${total.toFixed(2)}</span>
+              </div>
+              <div className="flex flex-col gap-2 min-[1367px]:hidden max-[1367px]:block">
+                <label className="text-base font-bold text-black">支払方法</label>
+                <select
+                  value={paymentMethod}
+                  onChange={(e) => handlePaymentMethodChange(e.target.value)}
+                  className="w-full px-4 py-2 bg-[#a3e7a3] border border-gray-300 rounded-md text-base text-black font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                >
+                  {paymentMethods.map((method) => (
+                    <option key={method.value} value={method.value} className="text-black">
+                      {method.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            {/* Row 2 - coupon + primary button */}
+            <div className="flex flex-wrap gap-2 max-[1367px]:mx-18">
+              <div className="flex flex-wrap gap-2 w-full items-start ">
                 <span className="text-base text-black font-bold">クーポン</span>
                 <input
                   type="text"
@@ -468,7 +440,6 @@ const PriceBar = ({
                   value={couponCode}
                   onChange={(e) => {
                     setCouponCode(e.target.value);
-                    // Clear error when user starts typing
                     if (couponError) {
                       setCouponError('');
                     }
@@ -476,24 +447,24 @@ const PriceBar = ({
                   disabled={!!appliedCoupon}
                   className="w-24 px-3 py-2 bg-[#a3e7a3] border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-base disabled:opacity-50 disabled:cursor-not-allowed"
                 />
-
                 <button
                   onClick={handleCouponApply}
                   disabled={couponCode.trim() === '' || !!appliedCoupon}
-                  className="px-3 py-2 bg-[#01ae00] text-white rounded-md hover:bg-green-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors font-medium text-base disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-gray-300"
+                  className="px-3 py-2 bg-[#01ae00] text-white rounded-full hover:bg-green-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors font-medium text-base disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-gray-300"
                 >
                   適用
                 </button>
-                <button
-                  onClick={onPrimaryAction}
-                  disabled={primaryActionDisabled}
-                  className="px-6 py-3 bg-[#01ae00] text-white rounded-full font-medium hover:bg-green-200 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors text-base disabled:outline-none whitespace-nowrap"
-                >
-                  {primaryActionLabel}
-                </button>
+                {primaryActionLabel && onPrimaryAction && (
+                  <button
+                    onClick={onPrimaryAction}
+                    disabled={primaryActionDisabled}
+                    className="ml-auto px-6 py-3 bg-[#01ae00] text-white rounded-full font-medium hover:bg-green-200 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors text-base disabled:outline-none whitespace-nowrap"
+                  >
+                    {primaryActionLabel}
+                  </button>
+                )}
               </div>
 
-              {/* Applied coupon info */}
               {appliedCoupon && (
                 <button
                   onClick={handleCouponRemove}
@@ -507,65 +478,12 @@ const PriceBar = ({
                 </button>
               )}
 
-              {/* Error message */}
               {couponError && (
-                <div className="absolute top-[70%] px-1 bg-[#fff9f9] border border-[1px] border-[#c02b0b] w-38 text-blue-600 text-sm font-medium whitespace-pre-line z-10">
+                <div className="absolute top-[70%] px-1 bg-[#fff9f9] border border-[1px] border-[#c02b0b] max-w-[220px] text-blue-600 text-sm font-medium whitespace-nowrap overflow-hidden text-ellipsis inline-flex z-10">
                   {couponError}
                 </div>
               )}
             </div>
-
-
-            {/* Payment Method Dropdown - Always visible */}
-            <div className="flex flex-col items-center gap-4">
-              <label className="text-base font-bold text-black whitespace-nowrap">支払方法</label>
-              <div className="relative" ref={paymentDropdownRef}>
-                <button
-                  type="button"
-                  onClick={() => setIsPaymentDropdownOpen(!isPaymentDropdownOpen)}
-                  className="flex items-center justify-between w-full px-4 py-2 bg-[#a3e7a3] border border-gray-300 rounded-md text-base text-black font-medium hover:bg-green-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 min-w-[200px]"
-                >
-                  <span>{selectedPaymentMethod.label}</span>
-                  <svg
-                    className={`w-5 h-5 transition-transform ${isPaymentDropdownOpen ? 'rotate-180' : ''}`}
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                  </svg>
-                </button>
-
-                {isPaymentDropdownOpen && (
-                  <div className="absolute top-full left-0 mt-1 w-full bg-[#3a4149] border border-gray-400 rounded-md shadow-lg z-50 overflow-hidden">
-                    {paymentMethods.map((method) => (
-                      <button
-                        key={method.value}
-                        type="button"
-                        onClick={() => handlePaymentMethodChange(method.value)}
-                        className="w-full px-4 py-3 text-left text-sm text-white hover:bg-[#4a5568] transition-colors"
-                      >
-                        {paymentMethod === method.value && (
-                          <span className="mr-2">✓</span>
-                        )}
-                        {method.label}
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Primary Action Button - Always visible if provided */}
-            {primaryActionLabel && onPrimaryAction ? (
-              <button
-                onClick={onPrimaryAction}
-                disabled={primaryActionDisabled}
-                className="w-full px-6 py-3 bg-[#01ae00] text-white rounded-full font-medium hover:bg-green-200 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors text-base disabled:outline-none whitespace-nowrap"
-              >
-                {primaryActionLabel}
-              </button>
-            ) : null}
           </div>
         </div>
       </div>

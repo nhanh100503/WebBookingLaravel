@@ -6,7 +6,7 @@ const ProcessIndicator = ({ currentStep }) => {
   ];
 
   return (
-    <div className="flex justify-evenly w-[80%] mx-auto">
+    <div className="flex justify-evenly w-[90%] mx-auto max-[640px]:mx-4">
       {steps.map((step) => {
         const isActive = step.number === currentStep;
         const isCompleted = step.number < currentStep;
@@ -29,7 +29,7 @@ const ProcessIndicator = ({ currentStep }) => {
                 step.number
               )}
             </div>
-            <span className="text-gray-600 text-base whitespace-pre-line">
+            <span className="text-black font-bold text-base whitespace-pre-line max-[640px]:text-sm">
               {step.label}
             </span>
           </div>
