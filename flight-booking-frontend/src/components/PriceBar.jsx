@@ -251,7 +251,7 @@ const PriceBar = ({
 
   return (
     <div className="fixed bottom-0 left-0 right-0 bg-[#f0f8ff] border-t-1 border-black-200 shadow-lg z-40 px-8">
-      <div className="max-w-[1140px] mx-auto px- py-2 h-38 max-[769px]:h-28 max-[769px]:px-0">
+      <div className="max-w-[1140px] mx-auto max-[769px]:mx-0 py-2 h-38 max-[769px]:h-34 max-[769px]:px-0">
         <div className="flex flex-col">
           <div className="flex flex-wrap justify-between items-start max-[1367px]:hidden max-[1367px]:justify-around">
             {/* 仮計算 */}
@@ -388,7 +388,7 @@ const PriceBar = ({
                 <button
                   onClick={onPrimaryAction}
                   disabled={primaryActionDisabled}
-                  className="max-[1367px]:hidden px-6 py-3 bg-[#01ae00] text-white rounded-full font-medium hover:bg-green-200 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors text-base disabled:outline-none whitespace-nowrap"
+                  className="max-[1367px]:hidden max-[640px]:w-[50%] px-6 py-3 bg-[#01ae00] text-white rounded-full font-medium hover:bg-green-200 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors text-base disabled:outline-none whitespace-nowrap"
                 >
                   {primaryActionLabel}
                 </button>
@@ -404,21 +404,23 @@ const PriceBar = ({
 
           <div className="hidden max-[1367px]:flex max-[1367px]:flex-col max-[1367px]:gap-2 max-[1367px]:mt-2 max-[769px]:w-[120%] max-[769px]:flex-col max-[769px]:py-1 max-[769px]:items-start max-[769px]:gap-0">
             {/* Row 1 - summary + payment dropdown */}
-            <div className="flex flex-wrap items-start justify-between gap-1 max-[1367px]:justify-around ">
-              <div className="flex flex-col items-start">
-                <span className="text-base text-black font-bold">仮計算</span>
-                <span className="text-base font-regular text-[#ff0000]">${subtotal.toFixed(2)}</span>
-              </div>
-              <div className="flex flex-col items-start">
-                <span className="text-base font-bold text-black">税金</span>
-                <span className="text-base font-regular text-black">${vat.toFixed(2)}</span>
-              </div>
-              <div className="flex flex-col items-start">
-                <span className="text-base font-bold text-black">合計</span>
-                <span className="w-24 text-start font-bold text-black">${total.toFixed(2)}</span>
+            <div className="flex items-start justify-between max-[1367px]:justify-start">
+              <div className="flex flex-row items-start gap-2">
+                <div className="flex flex-col items-start">
+                  <span className="text-base text-black font-bold">仮計算</span>
+                  <span className="text-base font-regular text-[#ff0000]">${subtotal.toFixed(2)}</span>
+                </div>
+                <div className="flex flex-col items-start">
+                  <span className="text-base font-bold text-black">税金</span>
+                  <span className="text-base font-regular text-black">${vat.toFixed(2)}</span>
+                </div>
+                <div className="flex flex-col items-start">
+                  <span className="text-base font-bold text-black">合計</span>
+                  <span className="w-24 text-start font-bold text-black">${total.toFixed(2)}</span>
+                </div>
               </div>
               {/* make label + select into a col*/}
-              <div className="flex flex-col gap-1 min-[1367px]:hidden max-[1367px]:block max-[769px]:scale-70 max-[769px]:w-[40%] max-[769px]:gap-1 max-[769px]:py-0 max-[769px]:items-start">
+              <div className="flex flex-col gap-1 min-[1367px]:hidden max-[1367px]:block max-[769px]:w-[40%] max-[769px]:py-0 max-[769px]:items-start max-[540px]:scale-90">
                 <label className="text-base font-bold text-black">支払方法</label>
                 <select
                   value={paymentMethod}
@@ -436,8 +438,8 @@ const PriceBar = ({
             </div>
 
             {/* Row 2 - coupon + primary button */}
-            <div className="flex flex-wrap gap-2 max-[1367px]:mx-18 max-[769px]:gap-1 max-[769px]:px-1 max-[769px]:mx-0 max-[769px]:items-start">
-              <div className="flex flex-wrap gap-1 w-full items-center max-[769px]:gap-1 max-[769px]:py-0">
+            <div className="flex flex-wrap gap-2 max-[769px]:mx-0">
+              <div className="flex w-full items-center max-[769px]:py-0 max-[540px]:scale-90">
                 <span className="text-base text-black font-bold">クーポン</span>
                 <input
                   type="text"

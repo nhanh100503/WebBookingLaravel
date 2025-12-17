@@ -744,7 +744,7 @@ const BookingStep1 = ({ bookingData, setBookingData, onNextStep }) => {
                         </label>
                       ))}
                     </fieldset>
-                    
+
                   </FieldRequired>
                 </div>
 
@@ -761,7 +761,7 @@ const BookingStep1 = ({ bookingData, setBookingData, onNextStep }) => {
                   />
                 </div>
 
-                
+
               </div>
 
               {/* Seating Preferences - Placed after 出発日 and before 運行航空の会員番号やマイレージ番号 */}
@@ -840,7 +840,7 @@ const BookingStep1 = ({ bookingData, setBookingData, onNextStep }) => {
                       name="meeting_time_minutes"
                       min="0"
                       max="59"
-                      placeholder='分' 
+                      placeholder='分'
                       value={formData.meeting_time ? parseInt(formData.meeting_time.split(':')[1] || '0') : ''}
                       onChange={(e) => {
                         const minutes = e.target.value;
