@@ -415,7 +415,7 @@ const BookingStep1 = ({ bookingData, setBookingData, onNextStep }) => {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div>
                   <FieldRequired
-                    label="Fフライトの予約番号や予約コード"
+                    label="フライトの予約番号や予約コード"
                     required={true}
                     error={errors.flight_reservation_num}
                     isEmpty={isInputEmpty(formData.flight_reservation_num)}

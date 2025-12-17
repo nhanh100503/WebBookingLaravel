@@ -251,7 +251,7 @@ const PriceBar = ({
 
   return (
     <div className="fixed bottom-0 left-0 right-0 bg-[#f0f8ff] border-t-1 border-black-200 shadow-lg z-40 px-8">
-      <div className="max-w-[1140px] mx-auto max-[769px]:mx-0 py-2 h-38 max-[769px]:h-34 max-[769px]:px-0">
+      <div className="max-w-[1140px] mx-auto max-[769px]:mx-0 py-2 h-38 max-[769px]:h-40 max-[769px]:px-0">
         <div className="flex flex-col">
           <div className="flex flex-wrap justify-between items-start max-[1367px]:hidden max-[1367px]:justify-around">
             {/* 仮計算 */}
@@ -402,7 +402,7 @@ const PriceBar = ({
           max-[769px]:w-60%
            */}
 
-          <div className="hidden max-[1367px]:flex max-[1367px]:flex-col max-[1367px]:gap-2 max-[1367px]:mt-2 max-[769px]:w-[120%] max-[769px]:flex-col max-[769px]:py-1 max-[769px]:items-start max-[769px]:gap-0">
+          <div className="hidden max-[1367px]:flex max-[1367px]:flex-col max-[1367px]:gap-2 max-[1367px]:mt-2 max-[769px]:w-[120%] max-[769px]:flex-col max-[769px]:py-1 max-[769px]:items-start max-[769px]:gap-5">
             {/* Row 1 - summary + payment dropdown */}
             <div className="flex items-start justify-between max-[1367px]:justify-start">
               <div className="flex flex-row items-start gap-2">
@@ -486,7 +486,7 @@ const PriceBar = ({
               )}
 
               {couponError && (
-                <div className="absolute top-[70%] px-1 bg-[#fff9f9] border border-[1px] border-[#c02b0b] max-w-[220px] text-blue-600 text-sm font-medium whitespace-nowrap overflow-hidden text-ellipsis inline-flex z-10">
+                <div className="max-[640px]:top-[50%] absolute top-[70%] px-1 bg-[#fff9f9] border border-[1px] border-[#c02b0b] max-w-[220px] text-blue-600 text-sm font-medium whitespace-nowrap overflow-hidden text-ellipsis inline-flex z-10">
                   {couponError}
                 </div>
               )}
